@@ -10,6 +10,7 @@ public class InputValidator {
     private static final String DOMAIN_REGEX =
             "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])(\\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]))*$";
 
+
     public static void validateInput(String[] args) {
         if (args.length < 3) {
             throw new InputValidationException("Usage: java -jar crawler.jar url depth domain1 domain2 ...");
