@@ -17,3 +17,9 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.jar {
+    archiveFileName.set("crawler.jar")
+    archiveVersion.set("")
+    archiveClassifier.set("")
+}
