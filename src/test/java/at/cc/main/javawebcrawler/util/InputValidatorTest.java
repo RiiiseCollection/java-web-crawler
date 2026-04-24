@@ -56,6 +56,22 @@ class InputValidatorTest {
     }
 
     @Test
+    void testMultipleDomainsValid() {
+        String[] arguments = {"https://www.aau.at/", "3", "aau.at", "aau.com", "google.at", "github.com"};
+
+        assertDoesNotThrow(() -> InputValidator.validateInput(arguments));
+    }
+
+    @Test
+    void testMultipleDomainsInvalidAtPos5() {
+        String[] arguments = {"https://www.aau.at/", "1", "aau.at", "aau.com", "google.com", "github//*.com"};
+
+        Exception e = assertThrows(InputValidationException.class, () -> InputValidator.validateInput(arguments));
+
+        assertEquals("Domain at position 5 of arguments is not valid", e.getMessage());
+    }
+
+    @Test
     void testInputIsValid() {
         String[] arguments = {"https://www.aau.at/", "1", "aau.at"};
 
