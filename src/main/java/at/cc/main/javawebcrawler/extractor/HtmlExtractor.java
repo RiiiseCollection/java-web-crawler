@@ -6,7 +6,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Stack;
 
 public class HtmlExtractor {
@@ -21,7 +21,7 @@ public class HtmlExtractor {
                 return null;
             }
 
-            HashSet<LinkItem> links = new HashSet<>();
+            LinkedHashSet<LinkItem> links = new LinkedHashSet<>();
             ArrayList<HeadlineItem> headlines = new ArrayList<>();
 
             Document doc = fetchResult.getDocument();
