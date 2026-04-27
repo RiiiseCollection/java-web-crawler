@@ -16,6 +16,7 @@ class HtmlExtractorTest {
     private Document doc;
     private FetchResult fetchResult;
     private HtmlExtractor htmlExtractor;
+    private final int depth = 0;
 
     @BeforeEach
     void setup() {
@@ -43,7 +44,7 @@ class HtmlExtractorTest {
         fetchResult.setSuccess(true);
         fetchResult.setDocument(doc);
 
-        WebpageItem result = htmlExtractor.extractWebpage(fetchResult, anyInt());
+        WebpageItem result = htmlExtractor.extractWebpage(fetchResult, depth);
 
         assertNotNull(result);
 
@@ -52,7 +53,7 @@ class HtmlExtractorTest {
         assertEquals(4, result.getHeadlines().size());
         assertEquals("Main Headline", result.getHeadlines().getFirst().getText());
         assertEquals("Subtitle 1", result.getHeadlines().get(1).getText());
-        assertEquals(anyInt(), result.getDepth());
+        assertEquals(depth, result.getDepth());
 
         HeadlineItem mainHeadline = result.getHeadlines().getFirst();
         HeadlineItem subtitle1 = result.getHeadlines().get(1);
@@ -68,7 +69,7 @@ class HtmlExtractorTest {
         fetchResult.setSuccess(false);
         fetchResult.setDocument(doc);
 
-        WebpageItem result = htmlExtractor.extractWebpage(fetchResult, anyInt());
+        WebpageItem result = htmlExtractor.extractWebpage(fetchResult, depth);
 
         assertNotNull(result);
         assertTrue(result.getRoot().isBroken());
@@ -82,7 +83,7 @@ class HtmlExtractorTest {
         fetchResult.setSuccess(true);
         fetchResult.setDocument(null);
 
-        WebpageItem result = htmlExtractor.extractWebpage(fetchResult, anyInt());
+        WebpageItem result = htmlExtractor.extractWebpage(fetchResult, depth);
 
         assertNull(result);
     }
