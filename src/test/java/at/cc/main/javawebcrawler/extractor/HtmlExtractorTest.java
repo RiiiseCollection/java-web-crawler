@@ -79,6 +79,7 @@ class HtmlExtractorTest {
 
     @Test
     void shouldReturnWhenDocumentIsNull() {
+        fetchResult.setSuccess(true);
         fetchResult.setDocument(null);
 
         WebpageItem result = htmlExtractor.extractWebpage(fetchResult, anyInt());
