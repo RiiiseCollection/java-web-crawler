@@ -6,6 +6,7 @@ import at.cc.main.javawebcrawler.data.LinkItem;
 import at.cc.main.javawebcrawler.extractor.HtmlExtractor;
 import at.cc.main.javawebcrawler.fetcher.UrlFetcher;
 import at.cc.main.javawebcrawler.network.JsoupHttpClient;
+import at.cc.main.javawebcrawler.util.UrlUtil;
 
 import java.util.*;
 
@@ -14,22 +15,25 @@ public class CrawlerEngine {
     private final HtmlExtractor htmlExtractor;
     private final Set<String> visitedUrls;
     private final List<WebpageItem> crawledPages;
+    private final List<String> allowedDomains;
     private final int maxDepth;
 
-    public CrawlerEngine(int maxDepth) {
+    public CrawlerEngine(int maxDepth, List<String> allowedDomains) {
         this.urlFetcher = new UrlFetcher(new JsoupHttpClient());
         this.htmlExtractor = new HtmlExtractor();
         this.visitedUrls = new HashSet<>();
         this.crawledPages = new ArrayList<>();
+        this.allowedDomains = allowedDomains;
         this.maxDepth = maxDepth;
     }
 
     // constructor for mock testing
-    public CrawlerEngine(int maxDepth, UrlFetcher urlFetcher, HtmlExtractor htmlExtractor) {
+    public CrawlerEngine(int maxDepth, List<String> allowedDomains, UrlFetcher urlFetcher, HtmlExtractor htmlExtractor) {
         this.urlFetcher = urlFetcher;
         this.htmlExtractor = htmlExtractor;
         this.visitedUrls = new HashSet<>();
         this.crawledPages = new ArrayList<>();
+        this.allowedDomains = allowedDomains;
         this.maxDepth = maxDepth;
     }
 
@@ -39,6 +43,10 @@ public class CrawlerEngine {
 
     private void crawlRecursive(String url, int currentDepth) {
         if (currentDepth > maxDepth || visitedUrls.contains(url)) {
+            return;
+        }
+
+        if (!allowedDomains.contains(UrlUtil.getDomain(url))) {
             return;
         }
 

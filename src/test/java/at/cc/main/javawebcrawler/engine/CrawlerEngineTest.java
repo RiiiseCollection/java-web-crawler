@@ -18,13 +18,16 @@ class CrawlerEngineTest {
     private UrlFetcher urlFetcher;
     private HtmlExtractor htmlExtractor;
     private CrawlerEngine crawlerEngine;
+    private List<String> domains;
     private String url = "https://aau.at";
 
     @BeforeEach
     void setUp() {
         urlFetcher = mock(UrlFetcher.class);
         htmlExtractor = mock(HtmlExtractor.class);
-        crawlerEngine = new CrawlerEngine(2, urlFetcher, htmlExtractor);
+        domains = new ArrayList<>();
+        domains.add("aau.at");
+        crawlerEngine = new CrawlerEngine(2, domains, urlFetcher, htmlExtractor);
     }
 
     @Test
@@ -62,7 +65,7 @@ class CrawlerEngineTest {
         );
         when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpageItem);
 
-        crawlerEngine = new CrawlerEngine(0, urlFetcher, htmlExtractor);
+        crawlerEngine = new CrawlerEngine(0, domains, urlFetcher, htmlExtractor);
 
         crawlerEngine.crawl(url);
 
