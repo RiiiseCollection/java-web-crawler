@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("com.gradleup.shadow") version "9.4.1"
 }
 
 group = "at.cc.main"
@@ -29,13 +30,14 @@ tasks.test {
     jvmArgs(mockitoAgent.files.map { "-javaagent:${it.absolutePath}" })
 }
 
-tasks.jar {
+tasks.shadowJar {
+    archiveFileName.set("crawler.jar")
+    archiveVersion.set("")
+    archiveClassifier.set("")
+
     manifest {
         attributes(
             "Main-Class" to "at.cc.main.javawebcrawler.Main",
         )
     }
-    archiveFileName.set("crawler.jar")
-    archiveVersion.set("")
-    archiveClassifier.set("")
 }
