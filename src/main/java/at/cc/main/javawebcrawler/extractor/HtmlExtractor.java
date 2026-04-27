@@ -3,7 +3,6 @@ package at.cc.main.javawebcrawler.extractor;
 import at.cc.main.javawebcrawler.data.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ public class HtmlExtractor {
         if (fetchResult.isBrokenUrl()) {
             webpageItem = new WebpageItem(new LinkItem(fetchResult.getUrl(), true), null, null, currentDepth);
         } else {
-            if(fetchResult.getDocument() == null) {
+            if (fetchResult.getDocument() == null) {
                 return null;
             }
 
@@ -38,8 +37,20 @@ public class HtmlExtractor {
             for (Element headline : docHeadlines) {
                 String text = headline.text();
                 HeaderLevel level = HeaderLevel.tagToLevel(headline.tag());
-                HeadlineItem item;
 
+                while (!headlineItemStack.isEmpty() && headlineItemStack.peek().getHeaderLevel().getLevel() >= level.getLevel()) {
+                    headlineItemStack.pop();
+                }
+
+                HeadlineItem parent = headlineItemStack.isEmpty() ? null : headlineItemStack.peek();
+                HeadlineItem item = new HeadlineItem(level, text, parent);
+
+                headlines.add(item);
+                headlineItemStack.push(item);
+
+                if(parent != null) {
+                    parent.addChild(item);
+                }
             }
 
             webpageItem = new WebpageItem(new LinkItem(fetchResult.getUrl(), false), links, headlines, currentDepth);

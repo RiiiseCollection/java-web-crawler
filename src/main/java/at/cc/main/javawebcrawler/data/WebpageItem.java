@@ -3,10 +3,11 @@ package at.cc.main.javawebcrawler.data;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class WebpageItem {
     private final LinkItem root;
-    private final HashSet<LinkItem> links;
+    private final Set<LinkItem> links;
     private final ArrayList<HeadlineItem> headlines;
     private final int depth;
 
@@ -21,7 +22,7 @@ public class WebpageItem {
         return root;
     }
 
-    public HashSet<LinkItem> getLinks() {
+    public Set<LinkItem> getLinks() {
         return links;
     }
 
