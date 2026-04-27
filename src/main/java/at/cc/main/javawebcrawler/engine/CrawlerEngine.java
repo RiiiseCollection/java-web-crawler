@@ -46,7 +46,7 @@ public class CrawlerEngine {
             return;
         }
 
-        if (!allowedDomains.contains(UrlUtil.getDomain(url))) {
+        if (!UrlUtil.isAllowedDomain(url, allowedDomains)) {
             return;
         }
 
