@@ -24,6 +24,15 @@ public class CrawlerEngine {
         this.maxDepth = maxDepth;
     }
 
+    // constructor for mock testing
+    public CrawlerEngine(int maxDepth, UrlFetcher urlFetcher, HtmlExtractor htmlExtractor) {
+        this.urlFetcher = urlFetcher;
+        this.htmlExtractor = htmlExtractor;
+        this.visitedUrls = new HashSet<>();
+        this.crawledPages = new ArrayList<>();
+        this.maxDepth = maxDepth;
+    }
+
     public void crawl(String startUrl) {
         crawlRecursive(startUrl, 0);
     }
