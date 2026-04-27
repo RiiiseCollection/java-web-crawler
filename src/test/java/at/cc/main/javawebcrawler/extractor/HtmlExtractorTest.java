@@ -79,7 +79,7 @@ class HtmlExtractorTest {
     }
 
     @Test
-    void shouldReturnWhenDocumentIsNull() {
+    void shouldReturnNullWhenDocumentIsNull() {
         fetchResult.setSuccess(true);
         fetchResult.setDocument(null);
 
