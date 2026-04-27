@@ -2,7 +2,6 @@ package at.cc.main.javawebcrawler.fetcher;
 
 import at.cc.main.javawebcrawler.data.FetchResult;
 import at.cc.main.javawebcrawler.network.HttpClient;
-import at.cc.main.javawebcrawler.network.JsoupHttpClient;
 import org.jsoup.Connection;
 
 import java.io.IOException;
