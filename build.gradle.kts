@@ -30,6 +30,11 @@ tasks.test {
 }
 
 tasks.jar {
+    manifest {
+        attributes(
+            "Main-Class" to "at.cc.main.javawebcrawler.Main",
+        )
+    }
     archiveFileName.set("crawler.jar")
     archiveVersion.set("")
     archiveClassifier.set("")
