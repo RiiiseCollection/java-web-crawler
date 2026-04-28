@@ -8,6 +8,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 public class MarkdownReportGenerator {
     private static final String REPORT_FILENAME = "crawl-report.md";
@@ -16,6 +17,10 @@ public class MarkdownReportGenerator {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(REPORT_FILENAME))) {
             for (WebpageItem page : crawledPages) {
                 writePageEntry(writer, page);
+
+                if (crawledPages.size() == 1) {
+                    writeLinkTree(writer, page);
+                }
             }
             System.out.println("Report generated: " + REPORT_FILENAME);
         } catch (IOException e) {
@@ -55,12 +60,21 @@ public class MarkdownReportGenerator {
         }
     }
 
-    private String getArrowPrefix(int depth) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < depth; i++) {
-            sb.append("-");
+    private void writeLinkTree(BufferedWriter writer, WebpageItem page) throws IOException {
+        Set<LinkItem> links = page.getLinks();
+        if (links != null && !links.isEmpty()) {
+            for (LinkItem link : links) {
+                String arrowPrefix = getArrowPrefix(page.getDepth());
+                if (link.isBroken()) {
+                    writer.write("<br> " + arrowPrefix + "broken link <a>" + link.link() + "</a>\n");
+                } else {
+                    writer.write("<br> " + arrowPrefix + "link to <a>" + link.link() + "</a>\n");
+                }
+            }
         }
-        sb.append("> ");
-        return sb.toString();
+    }
+
+    private String getArrowPrefix(int depth) {
+        return "-".repeat(Math.max(0, depth + 1)) + "> ";
     }
 }
