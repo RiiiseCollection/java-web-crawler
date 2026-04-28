@@ -1,15 +1,18 @@
 package at.cc.main.javawebcrawler.report;
 
-import at.cc.main.javawebcrawler.data.*;
+import at.cc.main.javawebcrawler.data.webpage.LinkItem;
+import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MarkdownReportGeneratorTest {
 

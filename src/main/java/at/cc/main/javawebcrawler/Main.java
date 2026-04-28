@@ -1,9 +1,9 @@
 package at.cc.main.javawebcrawler;
 
-import at.cc.main.javawebcrawler.engine.CrawlerEngine;
+import at.cc.main.javawebcrawler.core.engine.CrawlerEngine;
 import at.cc.main.javawebcrawler.exception.InputValidationException;
 import at.cc.main.javawebcrawler.report.MarkdownReportGenerator;
-import at.cc.main.javawebcrawler.util.InputValidator;
+import at.cc.main.javawebcrawler.validator.InputValidator;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,15 +1,15 @@
-package at.cc.main.javawebcrawler.extractor;
+package at.cc.main.javawebcrawler.core.extractor;
 
-import at.cc.main.javawebcrawler.data.FetchResult;
-import at.cc.main.javawebcrawler.data.HeadlineItem;
-import at.cc.main.javawebcrawler.data.WebpageItem;
+import at.cc.main.javawebcrawler.core.extractor.HtmlExtractor;
+import at.cc.main.javawebcrawler.data.fetch.FetchResult;
+import at.cc.main.javawebcrawler.data.webpage.HeadlineItem;
+import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
 
 class HtmlExtractorTest {
 

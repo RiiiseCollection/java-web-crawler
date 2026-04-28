@@ -1,4 +1,4 @@
-package at.cc.main.javawebcrawler.util;
+package at.cc.main.javawebcrawler.validator;
 
 import at.cc.main.javawebcrawler.exception.InputValidationException;
 

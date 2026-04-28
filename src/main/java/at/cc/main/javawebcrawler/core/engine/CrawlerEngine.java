@@ -1,10 +1,10 @@
-package at.cc.main.javawebcrawler.engine;
+package at.cc.main.javawebcrawler.core.engine;
 
-import at.cc.main.javawebcrawler.data.FetchResult;
-import at.cc.main.javawebcrawler.data.LinkItem;
-import at.cc.main.javawebcrawler.data.WebpageItem;
-import at.cc.main.javawebcrawler.extractor.HtmlExtractor;
-import at.cc.main.javawebcrawler.fetcher.UrlFetcher;
+import at.cc.main.javawebcrawler.data.fetch.FetchResult;
+import at.cc.main.javawebcrawler.data.webpage.LinkItem;
+import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
+import at.cc.main.javawebcrawler.core.extractor.HtmlExtractor;
+import at.cc.main.javawebcrawler.core.fetcher.UrlFetcher;
 import at.cc.main.javawebcrawler.network.JsoupHttpClient;
 import at.cc.main.javawebcrawler.util.UrlUtil;
 

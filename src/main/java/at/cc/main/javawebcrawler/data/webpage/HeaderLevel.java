@@ -1,4 +1,4 @@
-package at.cc.main.javawebcrawler.data;
+package at.cc.main.javawebcrawler.data.webpage;
 
 import org.jsoup.parser.Tag;
 

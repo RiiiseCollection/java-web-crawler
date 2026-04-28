@@ -1,4 +1,4 @@
-package at.cc.main.javawebcrawler.data;
+package at.cc.main.javawebcrawler.data.fetch;
 
 import org.jsoup.nodes.Document;
 

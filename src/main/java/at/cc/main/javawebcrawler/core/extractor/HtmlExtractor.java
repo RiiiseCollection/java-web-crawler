@@ -1,6 +1,10 @@
-package at.cc.main.javawebcrawler.extractor;
+package at.cc.main.javawebcrawler.core.extractor;
 
-import at.cc.main.javawebcrawler.data.*;
+import at.cc.main.javawebcrawler.data.fetch.FetchResult;
+import at.cc.main.javawebcrawler.data.webpage.HeaderLevel;
+import at.cc.main.javawebcrawler.data.webpage.HeadlineItem;
+import at.cc.main.javawebcrawler.data.webpage.LinkItem;
+import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
