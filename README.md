@@ -31,10 +31,11 @@ Build the executable JAR using Gradle Shadow plugin:
 ```bash
 ./gradlew shadowJar
 ```
-This will generate:
 
-```path
-build/libs/crawler.jar
+This will generate in `/build/libs`:
+
+```
+crawler.jar
 ```
 
 ---
@@ -43,18 +44,18 @@ build/libs/crawler.jar
 
 Run the crawler from the command line:
 ```bash
-java -jar build/libs/crawler.jar <URL> <DEPTH> <DOMAIN_1> <DOMAIN_2> ...
+java -jar crawler.jar <URL> <DEPTH> <DOMAIN_1> <DOMAIN_2> ...
 ```
 ## Example
 ```bash
-java -jar build/libs/crawler.jar https://aau.at 2 aau.at
+java -jar crawler.jar https://aau.at 2 aau.at
 ```
 `Beware, this example will crawl around 450 links as of 2026-04-28!`
 
 ## Arguments
-- <URL> – starting page to crawl (must be http/https)
-- <DEPTH> – maximum crawl depth (0 = only start page)
-- <DOMAINS> – one or more allowed domains
+- \<URL> - starting page to crawl (must be http/https)
+- \<DEPTH> - maximum crawl depth (0 = only start page)
+- \<DOMAINS> - one or more allowed domains
 
 ## Output
 
