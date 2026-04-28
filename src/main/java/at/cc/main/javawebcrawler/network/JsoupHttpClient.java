@@ -67,7 +67,7 @@ public class JsoupHttpClient implements HttpClient {
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
 
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-            HttpsURLConnection.setDefaultHostnameVerifier((_, _) -> true);
+            HttpsURLConnection.setDefaultHostnameVerifier((s, sslSession) -> true);
 
             return sslContext;
         } catch (Exception e) {
