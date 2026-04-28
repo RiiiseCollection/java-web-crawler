@@ -8,7 +8,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 public class MarkdownReportGenerator {
     private static final String REPORT_FILENAME = "crawl-report.md";
@@ -40,19 +39,6 @@ public class MarkdownReportGenerator {
             for (HeadlineItem headline : headlines) {
                 if (headline.isRoot()) {
                     writeHeadlineTree(writer, headline);
-                }
-            }
-        }
-
-        Set<LinkItem> links = page.getLinks();
-        if (links != null && !links.isEmpty()) {
-            writer.write("\n");
-            for (LinkItem link : links) {
-                String arrowPrefix = getArrowPrefix(page.getDepth());
-                if (link.isBroken()) {
-                    writer.write("<br>" + arrowPrefix + "broken link <a>" + link.link() + "</a>\n");
-                } else {
-                    writer.write("<br>" + arrowPrefix + "link to <a>" + link.link() + "</a>\n");
                 }
             }
         }
