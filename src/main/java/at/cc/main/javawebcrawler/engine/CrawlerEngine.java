@@ -38,7 +38,7 @@ public class CrawlerEngine {
     }
 
     public void crawl(String startUrl) {
-        crawlRecursive(startUrl, 0);
+        crawlRecursive(startUrl, 1);
     }
 
     private void crawlRecursive(String url, int currentDepth) {

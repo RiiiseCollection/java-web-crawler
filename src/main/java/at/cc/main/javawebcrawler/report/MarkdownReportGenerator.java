@@ -38,7 +38,7 @@ public class MarkdownReportGenerator {
         if (headlines != null) {
             for (HeadlineItem headline : headlines) {
                 if (headline.isRoot()) {
-                    writeHeadlineTree(writer, headline);
+                    writeHeadlineTree(writer, headline, page.getDepth());
                 }
             }
         }
@@ -46,19 +46,19 @@ public class MarkdownReportGenerator {
         writer.write("\n");
     }
 
-    private void writeHeadlineTree(BufferedWriter writer, HeadlineItem headline) throws IOException {
+    private void writeHeadlineTree(BufferedWriter writer, HeadlineItem headline, int depth) throws IOException {
         String headingMarkers = "#".repeat(headline.getHeaderLevel().getLevel());
-        writer.write(headingMarkers + " " + headline.getText() + "\n");
+        writer.write(headingMarkers + " " + getArrowPrefix(depth) + headline.getText() + "\n");
 
         for (HeadlineItem child : headline.getChildren()) {
-            writeHeadlineTree(writer, child);
+            writeHeadlineTree(writer, child, depth);
         }
     }
 
     private String getArrowPrefix(int depth) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i <= depth; i++) {
-            sb.append("--");
+        for (int i = 0; i < depth; i++) {
+            sb.append("-");
         }
         sb.append("> ");
         return sb.toString();
