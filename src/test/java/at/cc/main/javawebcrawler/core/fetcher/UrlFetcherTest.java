@@ -1,6 +1,7 @@
-package at.cc.main.javawebcrawler.fetcher;
+package at.cc.main.javawebcrawler.core.fetcher;
 
-import at.cc.main.javawebcrawler.data.FetchResult;
+import at.cc.main.javawebcrawler.core.fetcher.UrlFetcher;
+import at.cc.main.javawebcrawler.data.fetch.FetchResult;
 import at.cc.main.javawebcrawler.network.HttpClient;
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;

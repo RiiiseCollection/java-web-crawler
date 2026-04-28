@@ -1,8 +1,8 @@
 package at.cc.main.javawebcrawler.report;
 
-import at.cc.main.javawebcrawler.data.HeadlineItem;
-import at.cc.main.javawebcrawler.data.LinkItem;
-import at.cc.main.javawebcrawler.data.WebpageItem;
+import at.cc.main.javawebcrawler.data.webpage.HeadlineItem;
+import at.cc.main.javawebcrawler.data.webpage.LinkItem;
+import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

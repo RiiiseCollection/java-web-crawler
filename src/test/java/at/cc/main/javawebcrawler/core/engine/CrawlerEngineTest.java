@@ -1,17 +1,22 @@
-package at.cc.main.javawebcrawler.engine;
+package at.cc.main.javawebcrawler.core.engine;
 
-import at.cc.main.javawebcrawler.data.FetchResult;
-import at.cc.main.javawebcrawler.data.LinkItem;
-import at.cc.main.javawebcrawler.data.WebpageItem;
-import at.cc.main.javawebcrawler.extractor.HtmlExtractor;
-import at.cc.main.javawebcrawler.fetcher.UrlFetcher;
+import at.cc.main.javawebcrawler.core.engine.CrawlerEngine;
+import at.cc.main.javawebcrawler.data.fetch.FetchResult;
+import at.cc.main.javawebcrawler.data.webpage.LinkItem;
+import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
+import at.cc.main.javawebcrawler.core.extractor.HtmlExtractor;
+import at.cc.main.javawebcrawler.core.fetcher.UrlFetcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CrawlerEngineTest {
 

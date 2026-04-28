@@ -1,4 +1,4 @@
-package at.cc.main.javawebcrawler.data;
+package at.cc.main.javawebcrawler.data.webpage;
 
 public record LinkItem(String link, boolean isBroken) {
 
