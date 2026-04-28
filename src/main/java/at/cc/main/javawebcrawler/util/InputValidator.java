@@ -47,7 +47,7 @@ public class InputValidator {
         if (number == null) return false;
 
         try {
-            return Integer.parseInt(number) > 0;
+            return Integer.parseInt(number) >= 0;
         } catch (NumberFormatException e) {
             return false;
         }
