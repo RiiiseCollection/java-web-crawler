@@ -1,14 +1,17 @@
 package at.cc.main.javawebcrawler.engine;
 
 import at.cc.main.javawebcrawler.data.FetchResult;
-import at.cc.main.javawebcrawler.data.WebpageItem;
 import at.cc.main.javawebcrawler.data.LinkItem;
+import at.cc.main.javawebcrawler.data.WebpageItem;
 import at.cc.main.javawebcrawler.extractor.HtmlExtractor;
 import at.cc.main.javawebcrawler.fetcher.UrlFetcher;
 import at.cc.main.javawebcrawler.network.JsoupHttpClient;
 import at.cc.main.javawebcrawler.util.UrlUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class CrawlerEngine {
     private final UrlFetcher urlFetcher;
@@ -19,15 +22,9 @@ public class CrawlerEngine {
     private final int maxDepth;
 
     public CrawlerEngine(int maxDepth, List<String> allowedDomains) {
-        this.urlFetcher = new UrlFetcher(new JsoupHttpClient());
-        this.htmlExtractor = new HtmlExtractor();
-        this.visitedUrls = new HashSet<>();
-        this.crawledPages = new ArrayList<>();
-        this.allowedDomains = allowedDomains;
-        this.maxDepth = maxDepth;
+        this(maxDepth, allowedDomains, new UrlFetcher(new JsoupHttpClient()), new HtmlExtractor());
     }
 
-    // constructor for mock testing
     public CrawlerEngine(int maxDepth, List<String> allowedDomains, UrlFetcher urlFetcher, HtmlExtractor htmlExtractor) {
         this.urlFetcher = urlFetcher;
         this.htmlExtractor = htmlExtractor;
