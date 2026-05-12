@@ -1,11 +1,11 @@
 package at.cc.main.javawebcrawler.data.webpage;
 
-public record LinkItem(String link, boolean isBroken) {
+public record Link(String link, boolean isBroken) {
 
     @Override
     public boolean equals(Object obj) {
         if(this == obj) return true;
-        if(!(obj instanceof LinkItem otherObj)) return false;
+        if(!(obj instanceof Link otherObj)) return false;
         return link.equals(otherObj.link);
     }
 

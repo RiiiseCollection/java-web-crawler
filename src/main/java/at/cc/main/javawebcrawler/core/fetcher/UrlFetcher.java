@@ -17,7 +17,7 @@ public class UrlFetcher {
         FetchResult fetchResult = new FetchResult(url);
 
         try {
-            Connection.Response response = httpClient.getUrl(url);
+            Connection.Response response = httpClient.fetchUrl(url);
 
             if (response == null) {
                 fetchResult.setSuccess(false);

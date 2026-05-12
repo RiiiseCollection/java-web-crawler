@@ -5,5 +5,5 @@ import org.jsoup.Connection;
 import java.io.IOException;
 
 public interface HttpClient {
-    Connection.Response getUrl(String url) throws IOException;
+    Connection.Response fetchUrl(String url) throws IOException;
 }

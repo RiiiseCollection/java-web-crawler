@@ -1,13 +1,15 @@
 package at.cc.main.javawebcrawler.core.extractor;
 
-import at.cc.main.javawebcrawler.core.extractor.HtmlExtractor;
 import at.cc.main.javawebcrawler.data.fetch.FetchResult;
-import at.cc.main.javawebcrawler.data.webpage.HeadlineItem;
-import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
+import at.cc.main.javawebcrawler.data.webpage.Headline;
+import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,20 +46,20 @@ class HtmlExtractorTest {
         fetchResult.setSuccess(true);
         fetchResult.setDocument(doc);
 
-        WebpageItem result = htmlExtractor.extractWebpage(fetchResult, depth);
+        Webpage result = htmlExtractor.extractWebpage(fetchResult, depth);
 
         assertNotNull(result);
 
-        assertEquals(2, result.getLinks().size());
+        assertEquals(2, result.links().size());
 
-        assertEquals(4, result.getHeadlines().size());
-        assertEquals("Main Headline", result.getHeadlines().getFirst().getText());
-        assertEquals("Subtitle 1", result.getHeadlines().get(1).getText());
-        assertEquals(depth, result.getDepth());
+        assertEquals(4, result.headlines().size());
+        assertEquals("Main Headline", result.headlines().getFirst().getText());
+        assertEquals("Subtitle 1", result.headlines().get(1).getText());
+        assertEquals(depth, result.depth());
 
-        HeadlineItem mainHeadline = result.getHeadlines().getFirst();
-        HeadlineItem subtitle1 = result.getHeadlines().get(1);
-        HeadlineItem subtitle2 = result.getHeadlines().get(2);
+        Headline mainHeadline = result.headlines().getFirst();
+        Headline subtitle1 = result.headlines().get(1);
+        Headline subtitle2 = result.headlines().get(2);
 
         assertTrue(mainHeadline.getChildren().contains(subtitle1));
         assertEquals(mainHeadline, subtitle1.getParent());
@@ -69,13 +71,14 @@ class HtmlExtractorTest {
         fetchResult.setSuccess(false);
         fetchResult.setDocument(doc);
 
-        WebpageItem result = htmlExtractor.extractWebpage(fetchResult, depth);
+        Webpage result = htmlExtractor.extractWebpage(fetchResult, depth);
 
         assertNotNull(result);
-        assertTrue(result.getRoot().isBroken());
-        assertEquals(fetchResult.getUrl(), result.getRoot().link());
-        assertNull(result.getLinks());
-        assertNull(result.getHeadlines());
+        assertTrue(result.root().isBroken());
+        assertEquals(fetchResult.getUrl(), result.root().link());
+        assertNull(result.links());
+        assertNull(result.headlines());
+
     }
 
     @Test
@@ -83,7 +86,7 @@ class HtmlExtractorTest {
         fetchResult.setSuccess(true);
         fetchResult.setDocument(null);
 
-        WebpageItem result = htmlExtractor.extractWebpage(fetchResult, depth);
+        Webpage result = htmlExtractor.extractWebpage(fetchResult, depth);
 
         assertNull(result);
     }

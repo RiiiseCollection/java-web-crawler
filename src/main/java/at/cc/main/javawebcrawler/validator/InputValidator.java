@@ -9,23 +9,25 @@ public class InputValidator {
 
     private static final String DOMAIN_REGEX =
             "^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])(\\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]))*$";
-
+    private static final int MIN_ARGS_COUNT = 3;
+    private static final int INDEX_ARG_URL = 0;
+    private static final int INDEX_ARG_DEPTH = 1;
+    private static final int OFFSET_ARG_DOMAIN = 2;
 
     public static void validateInput(String[] args) {
-        if (args.length < 3) {
+        if (args.length < MIN_ARGS_COUNT) {
             throw new InputValidationException("Usage: java -jar crawler.jar url depth domain1 domain2 ...");
         }
 
-        if (!isValidUrlSyntax(args[0])) {
+        if (!isValidUrlSyntax(args[INDEX_ARG_URL])) {
             throw new InputValidationException("Please provide a valid url as the 1st argument");
         }
 
-        if (!isNumber(args[1])) {
+        if (!isNumber(args[INDEX_ARG_DEPTH])) {
             throw new InputValidationException("Please provide a Number as the 2nd argument");
         }
 
-        int domainOffset = 2;
-        for (int i = domainOffset; i < args.length; i++) {
+        for (int i = OFFSET_ARG_DOMAIN; i < args.length; i++) {
             if (!isValidDomainSyntax(args[i])) {
                 throw new InputValidationException("Domain at position " + i + " of arguments is not valid");
             }

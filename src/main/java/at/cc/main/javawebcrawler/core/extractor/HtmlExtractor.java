@@ -2,9 +2,9 @@ package at.cc.main.javawebcrawler.core.extractor;
 
 import at.cc.main.javawebcrawler.data.fetch.FetchResult;
 import at.cc.main.javawebcrawler.data.webpage.HeaderLevel;
-import at.cc.main.javawebcrawler.data.webpage.HeadlineItem;
-import at.cc.main.javawebcrawler.data.webpage.LinkItem;
-import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
+import at.cc.main.javawebcrawler.data.webpage.Headline;
+import at.cc.main.javawebcrawler.data.webpage.Link;
+import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -16,11 +16,11 @@ import java.util.Stack;
 
 public class HtmlExtractor {
 
-    public WebpageItem extractWebpage(FetchResult fetchResult, int currentDepth) {
-        WebpageItem webpageItem;
+    public Webpage extractWebpage(FetchResult fetchResult, int currentDepth) {
+        Webpage webpage;
 
         if (fetchResult.isBrokenUrl()) {
-            webpageItem = new WebpageItem(new LinkItem(fetchResult.getUrl(), true), null, null, currentDepth);
+            webpage = new Webpage(new Link(fetchResult.getUrl(), true), null, null, currentDepth);
         } else {
             if (fetchResult.getDocument() == null) {
                 return null;
@@ -28,52 +28,52 @@ public class HtmlExtractor {
 
             Document doc = fetchResult.getDocument();
 
-            LinkedHashSet<LinkItem> links = extractLinks(doc);
-            List<HeadlineItem> headlines = extractHeadlines(doc);
+            LinkedHashSet<Link> links = extractLinks(doc);
+            List<Headline> headlines = extractHeadlines(doc);
 
-            webpageItem = new WebpageItem(new LinkItem(fetchResult.getUrl(), false), links, headlines, currentDepth);
+            webpage = new Webpage(new Link(fetchResult.getUrl(), false), links, headlines, currentDepth);
         }
-        return webpageItem;
+        return webpage;
     }
 
-    private LinkedHashSet<LinkItem> extractLinks(Document doc) {
+    private LinkedHashSet<Link> extractLinks(Document doc) {
         if (doc == null) {
             return null;
         }
 
-        LinkedHashSet<LinkItem> links = new LinkedHashSet<>();
+        LinkedHashSet<Link> links = new LinkedHashSet<>();
 
         Elements docLinks = doc.select("a[href]");
         for (Element link : docLinks) {
-            links.add(new LinkItem(link.attr("abs:href"), false));
+            links.add(new Link(link.attr("abs:href"), false));
         }
 
         return links;
     }
 
-    private List<HeadlineItem> extractHeadlines(Document doc) {
+    private List<Headline> extractHeadlines(Document doc) {
         if (doc == null) {
             return null;
         }
 
-        ArrayList<HeadlineItem> headlines = new ArrayList<>();
+        ArrayList<Headline> headlines = new ArrayList<>();
 
         Elements docHeadlines = doc.select("h1, h2, h3, h4, h5, h6");
-        Stack<HeadlineItem> headlineItemStack = new Stack<>();
+        Stack<Headline> headlineStack = new Stack<>();
 
         for (Element headline : docHeadlines) {
             String text = headline.text();
             HeaderLevel level = HeaderLevel.tagToLevel(headline.tag());
 
-            while (!headlineItemStack.isEmpty() && headlineItemStack.peek().getHeaderLevel().getLevel() >= level.getLevel()) {
-                headlineItemStack.pop();
+            while (!headlineStack.isEmpty() && headlineStack.peek().getHeaderLevel().getLevel() >= level.getLevel()) {
+                headlineStack.pop();
             }
 
-            HeadlineItem parent = headlineItemStack.isEmpty() ? null : headlineItemStack.peek();
-            HeadlineItem item = new HeadlineItem(level, text, parent);
+            Headline parent = headlineStack.isEmpty() ? null : headlineStack.peek();
+            Headline item = new Headline(level, text, parent);
 
             headlines.add(item);
-            headlineItemStack.push(item);
+            headlineStack.push(item);
 
             if (parent != null) {
                 parent.addChild(item);

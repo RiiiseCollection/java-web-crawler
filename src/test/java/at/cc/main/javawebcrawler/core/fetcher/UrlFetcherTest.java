@@ -1,6 +1,5 @@
 package at.cc.main.javawebcrawler.core.fetcher;
 
-import at.cc.main.javawebcrawler.core.fetcher.UrlFetcher;
 import at.cc.main.javawebcrawler.data.fetch.FetchResult;
 import at.cc.main.javawebcrawler.network.HttpClient;
 import org.jsoup.Connection;
@@ -34,7 +33,7 @@ public class UrlFetcherTest {
 
     @Test
     void noSuccessUrlWasNull() throws IOException {
-        when(httpClient.getUrl(url)).thenReturn(null);
+        when(httpClient.fetchUrl(url)).thenReturn(null);
 
         FetchResult fetchResult = urlFetcher.fetchUrl(url);
 
@@ -48,7 +47,7 @@ public class UrlFetcherTest {
     void successfulFetchResultOnStatus200() throws IOException {
         int statusCode = 200;
 
-        when(httpClient.getUrl(url)).thenReturn(response);
+        when(httpClient.fetchUrl(url)).thenReturn(response);
         when(response.statusCode()).thenReturn(statusCode);
         when(response.parse()).thenReturn(document);
 
@@ -65,7 +64,7 @@ public class UrlFetcherTest {
     @Test
     void unsuccessfulFetchResultOnStatusNot200() throws IOException {
         int statusCode = 404;
-        when(httpClient.getUrl(url)).thenReturn(response);
+        when(httpClient.fetchUrl(url)).thenReturn(response);
         when(response.statusCode()).thenReturn(statusCode);
 
         FetchResult fetchResult = urlFetcher.fetchUrl(url);
@@ -81,7 +80,7 @@ public class UrlFetcherTest {
     @Test
     void throwsIOExceptionOnGetUrlError() throws IOException {
         String errorMessage = "Could not connect to url";
-        when(httpClient.getUrl(url)).thenThrow(new IOException(errorMessage));
+        when(httpClient.fetchUrl(url)).thenThrow(new IOException(errorMessage));
 
         FetchResult fetchResult = urlFetcher.fetchUrl(url);
 
@@ -96,7 +95,7 @@ public class UrlFetcherTest {
     void throwsIOExceptionOnParseError() throws IOException {
         String errorMessage = "Failed to parse document";
         int statusCode = 200;
-        when(httpClient.getUrl(url)).thenReturn(response);
+        when(httpClient.fetchUrl(url)).thenReturn(response);
         when(response.statusCode()).thenReturn(statusCode);
         when(response.parse()).thenThrow(new IOException(errorMessage));
 

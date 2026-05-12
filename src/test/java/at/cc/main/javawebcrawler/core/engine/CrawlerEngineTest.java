@@ -1,9 +1,8 @@
 package at.cc.main.javawebcrawler.core.engine;
 
-import at.cc.main.javawebcrawler.core.engine.CrawlerEngine;
 import at.cc.main.javawebcrawler.data.fetch.FetchResult;
-import at.cc.main.javawebcrawler.data.webpage.LinkItem;
-import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
+import at.cc.main.javawebcrawler.data.webpage.Link;
+import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import at.cc.main.javawebcrawler.core.extractor.HtmlExtractor;
 import at.cc.main.javawebcrawler.core.fetcher.UrlFetcher;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,13 +40,13 @@ class CrawlerEngineTest {
         when(fetchResult.isSuccess()).thenReturn(true);
         when(urlFetcher.fetchUrl(url)).thenReturn(fetchResult);
 
-        WebpageItem webpageItem = new WebpageItem(
-                new LinkItem(url, false),
+        Webpage webpage = new Webpage(
+                new Link(url, false),
                 new LinkedHashSet<>(),
                 new ArrayList<>(),
                 0
         );
-        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpageItem);
+        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpage);
 
         crawlerEngine.crawl(url);
 
@@ -62,13 +61,13 @@ class CrawlerEngineTest {
         when(fetchResult.isSuccess()).thenReturn(true);
         when(urlFetcher.fetchUrl(url)).thenReturn(fetchResult);
 
-        LinkedHashSet<LinkItem> links = new LinkedHashSet<>();
-        links.add(new LinkItem(deepUrl, false));
+        LinkedHashSet<Link> links = new LinkedHashSet<>();
+        links.add(new Link(deepUrl, false));
 
-        WebpageItem webpageItem = new WebpageItem(
-                new LinkItem(url, false), links, new ArrayList<>(), 0
+        Webpage webpage = new Webpage(
+                new Link(url, false), links, new ArrayList<>(), 0
         );
-        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpageItem);
+        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpage);
 
         crawlerEngine = new CrawlerEngine(0, domains, urlFetcher, htmlExtractor);
 
@@ -83,13 +82,13 @@ class CrawlerEngineTest {
         when(fetchResult.isSuccess()).thenReturn(true);
         when(urlFetcher.fetchUrl(url)).thenReturn(fetchResult);
 
-        LinkedHashSet<LinkItem> links = new LinkedHashSet<>();
-        links.add(new LinkItem(url, false));
+        LinkedHashSet<Link> links = new LinkedHashSet<>();
+        links.add(new Link(url, false));
 
-        WebpageItem webpageItem = new WebpageItem(
-                new LinkItem(url, false), links, new ArrayList<>(), 0
+        Webpage webpage = new Webpage(
+                new Link(url, false), links, new ArrayList<>(), 0
         );
-        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpageItem);
+        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpage);
 
         crawlerEngine.crawl(url);
 
@@ -104,15 +103,15 @@ class CrawlerEngineTest {
         when(fetchResult.getUrl()).thenReturn(brokenUrl);
         when(urlFetcher.fetchUrl(brokenUrl)).thenReturn(fetchResult);
 
-        WebpageItem webpageItem = new WebpageItem(
-                new LinkItem(brokenUrl, true), null, null, 0
+        Webpage webpage = new Webpage(
+                new Link(brokenUrl, true), null, null, 0
         );
-        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpageItem);
+        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpage);
 
         crawlerEngine.crawl(brokenUrl);
 
         assertEquals(1, crawlerEngine.getCrawledPages().size());
-        assertTrue(crawlerEngine.getCrawledPages().getFirst().getRoot().isBroken());
+        assertTrue(crawlerEngine.getCrawledPages().getFirst().root().isBroken());
     }
 
     @Test

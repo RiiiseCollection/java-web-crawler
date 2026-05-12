@@ -1,8 +1,8 @@
 package at.cc.main.javawebcrawler.report;
 
-import at.cc.main.javawebcrawler.data.webpage.HeadlineItem;
-import at.cc.main.javawebcrawler.data.webpage.LinkItem;
-import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
+import at.cc.main.javawebcrawler.data.webpage.Headline;
+import at.cc.main.javawebcrawler.data.webpage.Link;
+import at.cc.main.javawebcrawler.data.webpage.Webpage;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -13,9 +13,9 @@ import java.util.Set;
 public class MarkdownReportGenerator {
     private static final String REPORT_FILENAME = "crawl-report.md";
 
-    public void generateReport(List<WebpageItem> crawledPages) {
+    public void generateReport(List<Webpage> crawledPages) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(REPORT_FILENAME))) {
-            for (WebpageItem page : crawledPages) {
+            for (Webpage page : crawledPages) {
                 writePageEntry(writer, page);
 
                 if (crawledPages.size() == 1) {
@@ -28,22 +28,22 @@ public class MarkdownReportGenerator {
         }
     }
 
-    private void writePageEntry(BufferedWriter writer, WebpageItem page) throws IOException {
-        LinkItem root = page.getRoot();
+    private void writePageEntry(BufferedWriter writer, Webpage page) throws IOException {
+        Link root = page.root();
 
         writer.write("input: <a>" + root.link() + "</a>\n");
-        writer.write("<br>depth: " + page.getDepth() + "\n");
+        writer.write("<br>depth: " + page.depth() + "\n");
 
         if (root.isBroken()) {
             writer.write("\n<br>--> broken link <a>" + root.link() + "</a>\n\n");
             return;
         }
 
-        List<HeadlineItem> headlines = page.getHeadlines();
+        List<Headline> headlines = page.headlines();
         if (headlines != null) {
-            for (HeadlineItem headline : headlines) {
+            for (Headline headline : headlines) {
                 if (headline.isRoot()) {
-                    writeHeadlineTree(writer, headline, page.getDepth());
+                    writeHeadlineTree(writer, headline, page.depth());
                 }
             }
         }
@@ -51,20 +51,20 @@ public class MarkdownReportGenerator {
         writer.write("\n");
     }
 
-    private void writeHeadlineTree(BufferedWriter writer, HeadlineItem headline, int depth) throws IOException {
+    private void writeHeadlineTree(BufferedWriter writer, Headline headline, int depth) throws IOException {
         String headingMarkers = "#".repeat(headline.getHeaderLevel().getLevel());
         writer.write(headingMarkers + " " + getArrowPrefix(depth) + headline.getText() + "\n");
 
-        for (HeadlineItem child : headline.getChildren()) {
+        for (Headline child : headline.getChildren()) {
             writeHeadlineTree(writer, child, depth);
         }
     }
 
-    private void writeLinkTree(BufferedWriter writer, WebpageItem page) throws IOException {
-        Set<LinkItem> links = page.getLinks();
+    private void writeLinkTree(BufferedWriter writer, Webpage page) throws IOException {
+        Set<Link> links = page.links();
         if (links != null && !links.isEmpty()) {
-            for (LinkItem link : links) {
-                String arrowPrefix = getArrowPrefix(page.getDepth());
+            for (Link link : links) {
+                String arrowPrefix = getArrowPrefix(page.depth());
                 if (link.isBroken()) {
                     writer.write("<br> " + arrowPrefix + "broken link <a>" + link.link() + "</a>\n");
                 } else {
