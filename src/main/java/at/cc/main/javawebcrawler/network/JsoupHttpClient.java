@@ -14,11 +14,11 @@ public class JsoupHttpClient implements HttpClient {
     private static final int TIMEOUT_DELAY_MILLIS = 5000;
 
     @Override
-    public Connection.Response getUrl(String url) throws IOException {
+    public Connection.Response fetchUrl(String url) throws IOException {
         if (url == null) return null;
 
         try {
-            return fetchUrl(url, null);
+            return fetchUrlDefault(url);
         } catch (javax.net.ssl.SSLException e) {
             SSLContext context = initUnsafeSSL();
 
@@ -26,19 +26,19 @@ public class JsoupHttpClient implements HttpClient {
                 return null;
             }
 
-            return fetchUrl(url, context);
+            return fetchUrlWithoutCertificateCheck(url, context);
         }
     }
 
-    private Connection.Response fetchUrl(String url, SSLContext context) throws IOException {
-        if (context == null) {
+    private Connection.Response fetchUrlDefault(String url) throws IOException {
             return Jsoup.connect(url)
                     .timeout(TIMEOUT_DELAY_MILLIS)
                     .followRedirects(true)
                     .ignoreHttpErrors(true)
                     .execute();
-        }
+    }
 
+    private Connection.Response fetchUrlWithoutCertificateCheck(String url, SSLContext context) throws IOException {
         return Jsoup.connect(url)
                 .timeout(TIMEOUT_DELAY_MILLIS)
                 .followRedirects(true)

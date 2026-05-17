@@ -1,8 +1,8 @@
 package at.cc.main.javawebcrawler.core.engine;
 
 import at.cc.main.javawebcrawler.data.fetch.FetchResult;
-import at.cc.main.javawebcrawler.data.webpage.LinkItem;
-import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
+import at.cc.main.javawebcrawler.data.webpage.Link;
+import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import at.cc.main.javawebcrawler.core.extractor.HtmlExtractor;
 import at.cc.main.javawebcrawler.core.fetcher.UrlFetcher;
 import at.cc.main.javawebcrawler.network.JsoupHttpClient;
@@ -17,7 +17,7 @@ public class CrawlerEngine {
     private final UrlFetcher urlFetcher;
     private final HtmlExtractor htmlExtractor;
     private final Set<String> visitedUrls;
-    private final List<WebpageItem> crawledPages;
+    private final List<Webpage> crawledPages;
     private final List<String> allowedDomains;
     private final int maxDepth;
 
@@ -52,17 +52,17 @@ public class CrawlerEngine {
 
         FetchResult fetchResult = urlFetcher.fetchUrl(url);
 
-        WebpageItem webpageItem = htmlExtractor.extractWebpage(fetchResult, currentDepth);
+        Webpage webpage = htmlExtractor.extractWebpage(fetchResult, currentDepth);
 
-        if (webpageItem != null) {
-            crawledPages.add(webpageItem);
+        if (webpage != null) {
+            crawledPages.add(webpage);
 
             if (fetchResult.isSuccess() && currentDepth < maxDepth) {
-                Set<LinkItem> links = webpageItem.getLinks();
+                Set<Link> links = webpage.links();
                 if (links != null) {
-                    for (LinkItem link : links) {
-                        if (!link.isBroken()) {
-                            crawlRecursive(link.link(), currentDepth + 1);
+                    for (Link linkObj : links) {
+                        if (!linkObj.isBroken()) {
+                            crawlRecursive(linkObj.link(), currentDepth + 1);
                         }
                     }
                 }
@@ -70,7 +70,7 @@ public class CrawlerEngine {
         }
     }
 
-    public List<WebpageItem> getCrawledPages() {
+    public List<Webpage> getCrawledPages() {
         return crawledPages;
     }
 

@@ -17,15 +17,21 @@ class InputValidatorTest {
     }
 
     @Test
-    void testToFewArguments() {
+    void testOnlyOneArgument() {
         String[] arguments1 = {"https://www.aau.at/"};
-        String[] arguments2 = {"https://www.aau.at/", "1"};
 
         Exception e = assertThrows(InputValidationException.class, () -> InputValidator.validateInput(arguments1));
-        Exception e2 = assertThrows(InputValidationException.class, () -> InputValidator.validateInput(arguments2));
 
         assertEquals("Usage: java -jar crawler.jar url depth domain1 domain2 ...", e.getMessage());
-        assertEquals("Usage: java -jar crawler.jar url depth domain1 domain2 ...", e2.getMessage());
+    }
+
+    @Test
+    void testOnlyTwoArguments() {
+        String[] arguments = {"https://www.aau.at/", "1"};
+
+        Exception e = assertThrows(InputValidationException.class, () -> InputValidator.validateInput(arguments));
+
+        assertEquals("Usage: java -jar crawler.jar url depth domain1 domain2 ...", e.getMessage());
     }
 
     @Test

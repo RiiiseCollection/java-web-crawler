@@ -1,7 +1,7 @@
 package at.cc.main.javawebcrawler.report;
 
-import at.cc.main.javawebcrawler.data.webpage.LinkItem;
-import at.cc.main.javawebcrawler.data.webpage.WebpageItem;
+import at.cc.main.javawebcrawler.data.webpage.Link;
+import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,9 +25,9 @@ class MarkdownReportGeneratorTest {
 
     @Test
     void generateBasicReportFormat() throws IOException {
-        List<WebpageItem> pages = new ArrayList<>();
-        LinkItem root = new LinkItem("www.sample-input.com", false);
-        pages.add(new WebpageItem(root, new LinkedHashSet<>(), new ArrayList<>(), 1));
+        List<Webpage> pages = new ArrayList<>();
+        Link root = new Link("www.sample-input.com", false);
+        pages.add(new Webpage(root, new LinkedHashSet<>(), new ArrayList<>(), 1));
 
         reportGenerator.generateReport(pages);
 
@@ -40,9 +40,9 @@ class MarkdownReportGeneratorTest {
 
     @Test
     void highlightBrokenLinks() throws IOException {
-        List<WebpageItem> pages = new ArrayList<>();
-        LinkItem root = new LinkItem("www.broken-404.com", true);
-        pages.add(new WebpageItem(root, null, null, 0));
+        List<Webpage> pages = new ArrayList<>();
+        Link root = new Link("www.broken-404.com", true);
+        pages.add(new Webpage(root, null, null, 0));
 
         reportGenerator.generateReport(pages);
 
@@ -54,7 +54,7 @@ class MarkdownReportGeneratorTest {
 
     @Test
     void handleEmptyList() throws IOException {
-        List<WebpageItem> pages = new ArrayList<>();
+        List<Webpage> pages = new ArrayList<>();
 
         reportGenerator.generateReport(pages);
 

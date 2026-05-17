@@ -38,7 +38,7 @@ public class JsoupHttpClientTest {
 
             client = new JsoupHttpClient();
 
-            Connection.Response result = client.getUrl("https://aau.at");
+            Connection.Response result = client.fetchUrl("https://aau.at");
 
             assertEquals(response, result);
         }
@@ -46,7 +46,7 @@ public class JsoupHttpClientTest {
 
     @Test
     void correctlyReturnNullOnUrlNull() throws IOException {
-        Connection.Response result = client.getUrl(null);
+        Connection.Response result = client.fetchUrl(null);
 
         assertNull(result);
     }

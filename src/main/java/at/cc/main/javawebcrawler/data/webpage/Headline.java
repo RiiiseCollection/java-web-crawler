@@ -3,13 +3,13 @@ package at.cc.main.javawebcrawler.data.webpage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HeadlineItem {
+public class Headline {
     private final HeaderLevel headerLevel;
     private final String text;
-    private final HeadlineItem parent;
-    private final ArrayList<HeadlineItem> children = new ArrayList<>();
+    private final Headline parent;
+    private final ArrayList<Headline> children = new ArrayList<>();
 
-    public HeadlineItem(HeaderLevel headerlevel, String text, HeadlineItem parent) {
+    public Headline(HeaderLevel headerlevel, String text, Headline parent) {
         this.headerLevel = headerlevel;
         this.text = text;
         this.parent = parent;
@@ -23,15 +23,15 @@ public class HeadlineItem {
         return text;
     }
 
-    public HeadlineItem getParent() {
+    public Headline getParent() {
         return parent;
     }
 
-    public List<HeadlineItem> getChildren() {
+    public List<Headline> getChildren() {
         return children;
     }
 
-    public void addChild(HeadlineItem child) {
+    public void addChild(Headline child) {
         if (child != null) children.add(child);
     }
 
