@@ -3,7 +3,6 @@ package at.cc.main.javawebcrawler.network;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -12,6 +11,12 @@ import java.security.cert.X509Certificate;
 
 public class JsoupHttpClient implements HttpClient {
     private static final int TIMEOUT_DELAY_MILLIS = 5000;
+    private static final String TLS_PROVIDER = "TLS";
+    private final SSLContext unsafeSSLContext;
+
+    public JsoupHttpClient() {
+        this.unsafeSSLContext = initUnsafeSSL();
+    }
 
     @Override
     public Connection.Response fetchUrl(String url) throws IOException {
@@ -20,22 +25,18 @@ public class JsoupHttpClient implements HttpClient {
         try {
             return fetchUrlDefault(url);
         } catch (javax.net.ssl.SSLException e) {
-            SSLContext context = initUnsafeSSL();
+            if (unsafeSSLContext == null) return null;
 
-            if (context == null) {
-                return null;
-            }
-
-            return fetchUrlWithoutCertificateCheck(url, context);
+            return fetchUrlWithoutCertificateCheck(url, unsafeSSLContext);
         }
     }
 
     private Connection.Response fetchUrlDefault(String url) throws IOException {
-            return Jsoup.connect(url)
-                    .timeout(TIMEOUT_DELAY_MILLIS)
-                    .followRedirects(true)
-                    .ignoreHttpErrors(true)
-                    .execute();
+        return Jsoup.connect(url)
+                .timeout(TIMEOUT_DELAY_MILLIS)
+                .followRedirects(true)
+                .ignoreHttpErrors(true)
+                .execute();
     }
 
     private Connection.Response fetchUrlWithoutCertificateCheck(String url, SSLContext context) throws IOException {
@@ -63,11 +64,8 @@ public class JsoupHttpClient implements HttpClient {
                     }
             };
 
-            SSLContext sslContext = SSLContext.getInstance("TLS");
+            SSLContext sslContext = SSLContext.getInstance(TLS_PROVIDER);
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-
-            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-            HttpsURLConnection.setDefaultHostnameVerifier((s, sslSession) -> true);
 
             return sslContext;
         } catch (Exception e) {
