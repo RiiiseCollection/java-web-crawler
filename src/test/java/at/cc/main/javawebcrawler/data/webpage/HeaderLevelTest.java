@@ -5,28 +5,35 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class HeaderLevelTest {
 
     @Test
-    void tagToLevelReturnsNullWhenTagIsNull() {
-        Tag tag = null;
+    void tagToLevelThrowsWhenTagIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> HeaderLevel.tagToLevel(null));
+    }
 
-        HeaderLevel level = HeaderLevel.tagToLevel(tag);
+    @Test
+    void tagToLevelReturnsEmptyForUnknownTag() {
+        Tag tag = Tag.valueOf("div");
 
-        assertNull(level);
+        Optional<HeaderLevel> result = HeaderLevel.tagToLevel(tag);
+
+        assertTrue(result.isEmpty());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"H1", "H2", "H3", "H4", "H5", "H6", "h1", "h2", "h3", "h4", "h5", "h6"})
     void correctlyConvertsToHeader(String tagName) {
-        Tag tag = new Tag(tagName);
+        Tag tag = Tag.valueOf(tagName);
 
-        HeaderLevel expected = HeaderLevel.valueOf(tagName.toUpperCase());
+        Optional<HeaderLevel> result = HeaderLevel.tagToLevel(tag);
 
-        assertEquals(expected, HeaderLevel.tagToLevel(tag));
+        assertTrue(result.isPresent());
+        assertEquals(HeaderLevel.valueOf(tagName.toUpperCase()), result.get());
     }
 
 }

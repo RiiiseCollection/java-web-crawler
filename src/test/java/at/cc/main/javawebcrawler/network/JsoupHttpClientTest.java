@@ -1,5 +1,6 @@
 package at.cc.main.javawebcrawler.network;
 
+import at.cc.main.javawebcrawler.data.fetch.HttpResponse;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,9 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class JsoupHttpClientTest {
@@ -36,19 +39,22 @@ public class JsoupHttpClientTest {
             when(connection.ignoreHttpErrors(anyBoolean())).thenReturn(connection);
             when(connection.execute()).thenReturn(response);
 
-            client = new JsoupHttpClient();
+            when(response.statusCode()).thenReturn(HttpURLConnection.HTTP_OK);
+            when(response.body()).thenReturn("<html>test</html>");
+            when(response.url()).thenReturn(URI.create("https://aau.at").toURL());
 
-            Connection.Response result = client.fetchUrl("https://aau.at");
+            Optional<HttpResponse> result = client.fetchUrl("https://aau.at");
 
-            assertEquals(response, result);
+            assertTrue(result.isPresent());
+            assertEquals(HttpURLConnection.HTTP_OK, result.get().statusCode());
+            assertEquals("<html>test</html>", result.get().body());
+            assertEquals("https://aau.at", result.get().url());
         }
     }
 
     @Test
-    void correctlyReturnNullOnUrlNull() throws IOException {
-        Connection.Response result = client.fetchUrl(null);
-
-        assertNull(result);
+    void correctlyThrowOnUrlNull() {
+        assertThrows(IllegalArgumentException.class, () -> client.fetchUrl(null));
     }
 
 }

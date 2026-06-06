@@ -3,26 +3,25 @@ package at.cc.main.javawebcrawler.core.extractor;
 import at.cc.main.javawebcrawler.data.fetch.FetchResult;
 import at.cc.main.javawebcrawler.data.webpage.Headline;
 import at.cc.main.javawebcrawler.data.webpage.Webpage;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HtmlExtractorTest {
 
-    private Document doc;
+    private String body;
+    private String url;
     private FetchResult fetchResult;
     private HtmlExtractor htmlExtractor;
     private final int depth = 0;
 
     @BeforeEach
     void setup() {
-        doc = Jsoup.parse("""
+        body = """
                     <html>
                         <body>
                             <h1>Main Headline</h1>
@@ -34,9 +33,10 @@ class HtmlExtractorTest {
                             <a href="https://www.aau.at/studies">AAU Studies</a>
                         </body>
                     </html>
-                """, "https://aau.at");
+                """;
+        url = "https://aau.at";
 
-        fetchResult = new FetchResult("https://aau.at");
+        fetchResult = new FetchResult(url);
 
         htmlExtractor = new HtmlExtractor();
     }
@@ -44,22 +44,23 @@ class HtmlExtractorTest {
     @Test
     void correctlyExtractsLinksAndHeadlines() {
         fetchResult.setSuccess(true);
-        fetchResult.setDocument(doc);
+        fetchResult.setBody(body);
 
-        Webpage result = htmlExtractor.extractWebpage(fetchResult, depth);
+        Optional<Webpage> result = htmlExtractor.extractWebpage(fetchResult, depth);
 
-        assertNotNull(result);
+        assertTrue(result.isPresent());
+        Webpage webpage = result.get();
 
-        assertEquals(2, result.links().size());
+        assertEquals(2, webpage.links().size());
 
-        assertEquals(4, result.headlines().size());
-        assertEquals("Main Headline", result.headlines().getFirst().getText());
-        assertEquals("Subtitle 1", result.headlines().get(1).getText());
-        assertEquals(depth, result.depth());
+        assertEquals(4, webpage.headlines().size());
+        assertEquals("Main Headline", webpage.headlines().getFirst().getText());
+        assertEquals("Subtitle 1", webpage.headlines().get(1).getText());
+        assertEquals(depth, webpage.depth());
 
-        Headline mainHeadline = result.headlines().getFirst();
-        Headline subtitle1 = result.headlines().get(1);
-        Headline subtitle2 = result.headlines().get(2);
+        Headline mainHeadline = webpage.headlines().getFirst();
+        Headline subtitle1 = webpage.headlines().get(1);
+        Headline subtitle2 = webpage.headlines().get(2);
 
         assertTrue(mainHeadline.getChildren().contains(subtitle1));
         assertEquals(mainHeadline, subtitle1.getParent());
@@ -67,27 +68,28 @@ class HtmlExtractorTest {
     }
 
     @Test
-    void correctlyHandleBrokenUrl() {
+    void correctlyHandlesBrokenUrl() {
         fetchResult.setSuccess(false);
-        fetchResult.setDocument(doc);
+        fetchResult.setBody(body);
 
-        Webpage result = htmlExtractor.extractWebpage(fetchResult, depth);
+        Optional<Webpage> result = htmlExtractor.extractWebpage(fetchResult, depth);
 
-        assertNotNull(result);
-        assertTrue(result.root().isBroken());
-        assertEquals(fetchResult.getUrl(), result.root().link());
-        assertNull(result.links());
-        assertNull(result.headlines());
+        assertTrue(result.isPresent());
+        Webpage webpage = result.get();
 
+        assertTrue(webpage.root().isBroken());
+        assertEquals(fetchResult.getUrl(), webpage.root().link());
+        assertTrue(webpage.links().isEmpty());
+        assertTrue(webpage.headlines().isEmpty());
     }
 
     @Test
-    void shouldReturnNullWhenDocumentIsNull() {
+    void shouldReturnEmptyWhenDocumentIsNull() {
         fetchResult.setSuccess(true);
-        fetchResult.setDocument(null);
+        fetchResult.setBody(null);
 
-        Webpage result = htmlExtractor.extractWebpage(fetchResult, depth);
+        Optional<Webpage> result = htmlExtractor.extractWebpage(fetchResult, depth);
 
-        assertNull(result);
+        assertTrue(result.isEmpty());
     }
 }

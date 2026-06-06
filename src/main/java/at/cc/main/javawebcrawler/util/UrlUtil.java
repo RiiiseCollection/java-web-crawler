@@ -10,7 +10,7 @@ public class UrlUtil {
         try {
             URI uri = new URI(url);
             return uri.getHost();
-        } catch(URISyntaxException e) {
+        } catch (URISyntaxException e) {
             return null;
         }
     }

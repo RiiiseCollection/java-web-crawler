@@ -1,10 +1,8 @@
 package at.cc.main.javawebcrawler.data.fetch;
 
-import org.jsoup.nodes.Document;
-
 public class FetchResult {
     private final String url;
-    private Document document;
+    private String body;
     private int statusCode;
     private boolean success;
     private String errorMsg;
@@ -17,12 +15,12 @@ public class FetchResult {
         return url;
     }
 
-    public Document getDocument() {
-        return document;
+    public String getBody() {
+        return body;
     }
 
-    public void setDocument(Document document) {
-        this.document = document;
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public int getStatusCode() {

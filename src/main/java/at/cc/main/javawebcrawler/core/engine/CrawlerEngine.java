@@ -1,10 +1,9 @@
 package at.cc.main.javawebcrawler.core.engine;
 
-import at.cc.main.javawebcrawler.data.fetch.FetchResult;
-import at.cc.main.javawebcrawler.data.webpage.Link;
-import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import at.cc.main.javawebcrawler.core.extractor.HtmlExtractor;
 import at.cc.main.javawebcrawler.core.fetcher.UrlFetcher;
+import at.cc.main.javawebcrawler.data.fetch.FetchResult;
+import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import at.cc.main.javawebcrawler.network.JsoupHttpClient;
 import at.cc.main.javawebcrawler.util.UrlUtil;
 
@@ -52,22 +51,16 @@ public class CrawlerEngine {
 
         FetchResult fetchResult = urlFetcher.fetchUrl(url);
 
-        Webpage webpage = htmlExtractor.extractWebpage(fetchResult, currentDepth);
-
-        if (webpage != null) {
-            crawledPages.add(webpage);
+        htmlExtractor.extractWebpage(fetchResult, currentDepth).ifPresent(page -> {
+            crawledPages.add(page);
 
             if (fetchResult.isSuccess() && currentDepth < maxDepth) {
-                Set<Link> links = webpage.links();
-                if (links != null) {
-                    for (Link linkObj : links) {
-                        if (!linkObj.isBroken()) {
-                            crawlRecursive(linkObj.link(), currentDepth + 1);
-                        }
-                    }
-                }
+                page.links().stream()
+                        .filter(link -> !link.isBroken())
+                        .forEach(linkObj -> crawlRecursive(linkObj.link(), currentDepth + 1));
             }
-        }
+        });
+
     }
 
     public List<Webpage> getCrawledPages() {

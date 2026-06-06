@@ -4,8 +4,8 @@ public record Link(String link, boolean isBroken) {
 
     @Override
     public boolean equals(Object obj) {
-        if(this == obj) return true;
-        if(!(obj instanceof Link otherObj)) return false;
+        if (this == obj) return true;
+        if (!(obj instanceof Link otherObj)) return false;
         return link.equals(otherObj.link);
     }
 
