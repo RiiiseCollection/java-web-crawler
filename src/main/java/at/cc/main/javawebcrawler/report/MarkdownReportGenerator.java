@@ -15,10 +15,12 @@ public class MarkdownReportGenerator {
 
     public void generateReport(List<Webpage> crawledPages) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(REPORT_FILENAME))) {
+            boolean isSinglePage = crawledPages.size() == 1;
+
             for (Webpage page : crawledPages) {
                 writePageEntry(writer, page);
 
-                if (crawledPages.size() == 1) {
+                if (isSinglePage) {
                     writeLinkTree(writer, page);
                 }
             }
