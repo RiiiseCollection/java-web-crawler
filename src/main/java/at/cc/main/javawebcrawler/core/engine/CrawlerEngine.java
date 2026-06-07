@@ -66,7 +66,9 @@ public class CrawlerEngine {
                 Thread.currentThread().interrupt();
                 System.err.println("Crawl interrupted at depth " + currentDepth);
             } catch (ExecutionException e) {
-                System.err.println("Error during crawling: " + e.getCause().getMessage());
+                Throwable cause = e.getCause();
+                String msg = (cause != null) ? cause.getMessage() : e.getMessage();
+                System.err.println("Error during crawling at depth " + currentDepth + ": " + msg);
             }
         }
 
@@ -111,8 +113,17 @@ public class CrawlerEngine {
 
             System.out.println("Crawling: " + url + " at depth " + currentDepth);
 
-            FetchResult fetchResult = urlFetcher.fetchUrl(url);
-            return processAndCollectChildren(fetchResult);
+            try {
+                FetchResult fetchResult = urlFetcher.fetchUrl(url);
+                return processAndCollectChildren(fetchResult);
+            } catch (Exception e) {
+                System.err.println("Unexpected error crawling " + url + ": " + e.getMessage());
+                FetchResult errorResult = new FetchResult(url);
+                errorResult.setSuccess(false);
+                errorResult.setErrorMsg("Unexpected error: " + e.getMessage());
+                htmlExtractor.extractWebpage(errorResult, currentDepth).ifPresent(crawledPages::add);
+                return List.of();
+            }
         }
 
         private boolean isEligible(String url) {

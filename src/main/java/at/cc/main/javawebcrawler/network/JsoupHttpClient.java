@@ -32,7 +32,7 @@ public class JsoupHttpClient implements HttpClient {
 
             return Optional.of(toHttpResponse(fetchUrlWithoutCertificateCheck(url, unsafeSSLContext)));
         } catch (IOException e) {
-            System.err.println("Failed to fetch url: " + url);
+            System.err.println("Failed to fetch url: " + url + ": " + e.getMessage());
             return Optional.empty();
         }
     }
