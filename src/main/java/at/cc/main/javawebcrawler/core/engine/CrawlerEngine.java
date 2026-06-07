@@ -50,17 +50,22 @@ public class CrawlerEngine {
         System.out.println("Crawling: " + url + " at depth " + currentDepth);
 
         FetchResult fetchResult = urlFetcher.fetchUrl(url);
+        processFetchResult(fetchResult, currentDepth);
+    }
 
+    private void processFetchResult(FetchResult fetchResult, int currentDepth) {
         htmlExtractor.extractWebpage(fetchResult, currentDepth).ifPresent(page -> {
             crawledPages.add(page);
-
-            if (fetchResult.isSuccess() && currentDepth < maxDepth) {
-                page.links().stream()
-                        .filter(link -> !link.isBroken())
-                        .forEach(linkObj -> crawlRecursive(linkObj.link(), currentDepth + 1));
-            }
+            crawlChildPages(fetchResult, page, currentDepth);
         });
+    }
 
+    private void crawlChildPages(FetchResult fetchResult, Webpage page, int currentDepth) {
+        if (fetchResult.isSuccess() && currentDepth < maxDepth) {
+            page.links().stream()
+                    .filter(link -> !link.isBroken())
+                    .forEach(linkObj -> crawlRecursive(linkObj.link(), currentDepth + 1));
+        }
     }
 
     public List<Webpage> getCrawledPages() {
