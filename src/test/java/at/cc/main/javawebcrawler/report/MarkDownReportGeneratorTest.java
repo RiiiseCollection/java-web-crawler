@@ -1,5 +1,7 @@
 package at.cc.main.javawebcrawler.report;
 
+import at.cc.main.javawebcrawler.data.webpage.HeaderLevel;
+import at.cc.main.javawebcrawler.data.webpage.Headline;
 import at.cc.main.javawebcrawler.data.webpage.Link;
 import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +61,42 @@ class MarkdownReportGeneratorTest {
         reportGenerator.generateReport(pages);
 
         assertTrue(Files.exists(Path.of("crawl-report.md")));
+
+        Files.deleteIfExists(Path.of("crawl-report.md"));
+    }
+
+    @Test
+    void writesHeadlinesWithCorrectMarkdown() throws IOException {
+        Headline h1 = new Headline(HeaderLevel.H1, "Main Title", null);
+        Headline h2 = new Headline(HeaderLevel.H2, "Subtitle", h1);
+        h1.addChild(h2);
+
+        List<Webpage> pages = new ArrayList<>();
+        pages.add(new Webpage(new Link("https://sample-input.com", false), new LinkedHashSet<>(), List.of(h1, h2), 0));
+
+        reportGenerator.generateReport(pages);
+
+        String content = Files.readString(Path.of("crawl-report.md"));
+        assertTrue(content.contains("# -> Main Title"));
+        assertTrue(content.contains("## -> Subtitle"));
+
+        Files.deleteIfExists(Path.of("crawl-report.md"));
+    }
+
+    @Test
+    void writesSinglePageLinkTree() throws IOException {
+        LinkedHashSet<Link> links = new LinkedHashSet<>();
+        links.add(new Link("https://sample-input.com/page", false));
+        links.add(new Link("https://sample-input.com/broken", true));
+
+        List<Webpage> pages = new ArrayList<>();
+        pages.add(new Webpage(new Link("https://sample-input.com", false), links, new ArrayList<>(), 0));
+
+        reportGenerator.generateReport(pages);
+
+        String content = Files.readString(Path.of("crawl-report.md"));
+        assertTrue(content.contains("link to <a>https://sample-input.com/page</a>"));
+        assertTrue(content.contains("broken link <a>https://sample-input.com/broken</a>"));
 
         Files.deleteIfExists(Path.of("crawl-report.md"));
     }
