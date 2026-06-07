@@ -24,25 +24,27 @@ public class CrawlerEngine {
     private final List<String> allowedDomains;
     private final int maxDepth;
 
+    private final ExecutorService pool;
+
     public CrawlerEngine(int maxDepth, List<String> allowedDomains) {
-        this(maxDepth, allowedDomains, new UrlFetcher(new JsoupHttpClient()), new HtmlExtractor());
+        this(maxDepth, allowedDomains, new UrlFetcher(new JsoupHttpClient()), new HtmlExtractor(), Executors.newFixedThreadPool(THREAD_POOL_SIZE));
     }
 
-    public CrawlerEngine(int maxDepth, List<String> allowedDomains, UrlFetcher urlFetcher, HtmlExtractor htmlExtractor) {
+    public CrawlerEngine(int maxDepth, List<String> allowedDomains, UrlFetcher urlFetcher, HtmlExtractor htmlExtractor, ExecutorService pool) {
         this.urlFetcher = urlFetcher;
         this.htmlExtractor = htmlExtractor;
         this.visitedUrls = ConcurrentHashMap.newKeySet();
         this.crawledPages = new CopyOnWriteArrayList<>();
         this.allowedDomains = allowedDomains;
         this.maxDepth = maxDepth;
+        this.pool = pool;
     }
 
-    public void crawl(String startUrl) {
-        ExecutorService pool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+    public void crawl(String startUrl) {;
         try {
             crawlLevel(List.of(startUrl), 0, pool);
         } finally {
-            shutdownPool(pool);
+            shutdownPool();
         }
     }
 
@@ -71,7 +73,7 @@ public class CrawlerEngine {
         crawlLevel(nextLevelUrls, currentDepth + 1, pool);
     }
 
-    private void shutdownPool(ExecutorService pool) {
+    void shutdownPool() {
         pool.shutdown();
         try {
             if (!pool.awaitTermination(TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
