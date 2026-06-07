@@ -1,13 +1,14 @@
 package at.cc.main.javawebcrawler.core.fetcher;
 
 import at.cc.main.javawebcrawler.data.fetch.FetchResult;
+import at.cc.main.javawebcrawler.data.fetch.HttpResponse;
 import at.cc.main.javawebcrawler.network.HttpClient;
-import org.jsoup.Connection;
-import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -15,16 +16,16 @@ import static org.mockito.Mockito.when;
 
 public class UrlFetcherTest {
     private HttpClient httpClient;
-    private Connection.Response response;
-    private Document document;
+    private HttpResponse response;
+    private String body;
     private UrlFetcher urlFetcher;
     private String url;
 
     @BeforeEach
     void setup() {
         httpClient = mock(HttpClient.class);
-        response = mock(Connection.Response.class);
-        document = mock(Document.class);
+        response = mock(HttpResponse.class);
+        body = "<html>test</html>";
 
         urlFetcher = new UrlFetcher(httpClient);
 
@@ -32,30 +33,18 @@ public class UrlFetcherTest {
     }
 
     @Test
-    void noSuccessUrlWasNull() throws IOException {
-        when(httpClient.fetchUrl(url)).thenReturn(null);
-
-        FetchResult fetchResult = urlFetcher.fetchUrl(url);
-
-        assertFalse(fetchResult.isSuccess());
-        assertEquals("Provided url was null", fetchResult.getErrorMsg());
-        assertEquals(url, fetchResult.getUrl());
-        assertTrue(fetchResult.isBrokenUrl());
-    }
-
-    @Test
     void successfulFetchResultOnStatus200() throws IOException {
-        int statusCode = 200;
+        int statusCode = HttpURLConnection.HTTP_OK;
 
-        when(httpClient.fetchUrl(url)).thenReturn(response);
+        when(httpClient.fetchUrl(url)).thenReturn(Optional.of(response));
         when(response.statusCode()).thenReturn(statusCode);
-        when(response.parse()).thenReturn(document);
+        when(response.body()).thenReturn(body);
 
         FetchResult fetchResult = urlFetcher.fetchUrl(url);
 
         assertTrue(fetchResult.isSuccess());
         assertEquals(statusCode, fetchResult.getStatusCode());
-        assertEquals(document, fetchResult.getDocument());
+        assertEquals(body, fetchResult.getBody());
         assertEquals(url, fetchResult.getUrl());
         assertNull(fetchResult.getErrorMsg());
         assertFalse(fetchResult.isBrokenUrl());
@@ -64,16 +53,17 @@ public class UrlFetcherTest {
     @Test
     void unsuccessfulFetchResultOnStatusNot200() throws IOException {
         int statusCode = 404;
-        when(httpClient.fetchUrl(url)).thenReturn(response);
+
+        when(httpClient.fetchUrl(url)).thenReturn(Optional.of(response));
         when(response.statusCode()).thenReturn(statusCode);
 
         FetchResult fetchResult = urlFetcher.fetchUrl(url);
 
         assertFalse(fetchResult.isSuccess());
         assertEquals(statusCode, fetchResult.getStatusCode());
-        assertNull(fetchResult.getDocument());
+        assertNull(fetchResult.getBody());
         assertEquals(url, fetchResult.getUrl());
-        assertEquals("Error fetching Url. StatusCode: " + statusCode, fetchResult.getErrorMsg());
+        assertEquals("Error fetching URL. StatusCode: " + statusCode, fetchResult.getErrorMsg());
         assertTrue(fetchResult.isBrokenUrl());
     }
 
@@ -85,26 +75,22 @@ public class UrlFetcherTest {
         FetchResult fetchResult = urlFetcher.fetchUrl(url);
 
         assertFalse(fetchResult.isSuccess());
-        assertNull(fetchResult.getDocument());
+        assertNull(fetchResult.getBody());
         assertEquals(url, fetchResult.getUrl());
         assertEquals(errorMessage, fetchResult.getErrorMsg());
         assertTrue(fetchResult.isBrokenUrl());
     }
 
     @Test
-    void throwsIOExceptionOnParseError() throws IOException {
-        String errorMessage = "Failed to parse document";
-        int statusCode = 200;
-        when(httpClient.fetchUrl(url)).thenReturn(response);
-        when(response.statusCode()).thenReturn(statusCode);
-        when(response.parse()).thenThrow(new IOException(errorMessage));
+    void unsuccessfulFetchResultWhenResponseIsEmpty() throws IOException {
+        when(httpClient.fetchUrl(url)).thenReturn(Optional.empty());
 
         FetchResult fetchResult = urlFetcher.fetchUrl(url);
 
         assertFalse(fetchResult.isSuccess());
-        assertNull(fetchResult.getDocument());
+        assertNull(fetchResult.getBody());
         assertEquals(url, fetchResult.getUrl());
-        assertEquals(errorMessage, fetchResult.getErrorMsg());
+        assertEquals("Failed to fetch url: " + url, fetchResult.getErrorMsg());
         assertTrue(fetchResult.isBrokenUrl());
     }
 

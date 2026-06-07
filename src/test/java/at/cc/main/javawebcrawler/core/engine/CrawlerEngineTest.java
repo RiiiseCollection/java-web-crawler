@@ -1,16 +1,17 @@
 package at.cc.main.javawebcrawler.core.engine;
 
+import at.cc.main.javawebcrawler.core.extractor.HtmlExtractor;
+import at.cc.main.javawebcrawler.core.fetcher.UrlFetcher;
 import at.cc.main.javawebcrawler.data.fetch.FetchResult;
 import at.cc.main.javawebcrawler.data.webpage.Link;
 import at.cc.main.javawebcrawler.data.webpage.Webpage;
-import at.cc.main.javawebcrawler.core.extractor.HtmlExtractor;
-import at.cc.main.javawebcrawler.core.fetcher.UrlFetcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -23,7 +24,7 @@ class CrawlerEngineTest {
     private HtmlExtractor htmlExtractor;
     private CrawlerEngine crawlerEngine;
     private List<String> domains;
-    private String url = "https://aau.at";
+    private final String url = "https://aau.at";
 
     @BeforeEach
     void setUp() {
@@ -46,7 +47,7 @@ class CrawlerEngineTest {
                 new ArrayList<>(),
                 0
         );
-        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpage);
+        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(Optional.of(webpage));
 
         crawlerEngine.crawl(url);
 
@@ -67,7 +68,7 @@ class CrawlerEngineTest {
         Webpage webpage = new Webpage(
                 new Link(url, false), links, new ArrayList<>(), 0
         );
-        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpage);
+        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(Optional.of(webpage));
 
         crawlerEngine = new CrawlerEngine(0, domains, urlFetcher, htmlExtractor);
 
@@ -88,7 +89,7 @@ class CrawlerEngineTest {
         Webpage webpage = new Webpage(
                 new Link(url, false), links, new ArrayList<>(), 0
         );
-        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpage);
+        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(Optional.of(webpage));
 
         crawlerEngine.crawl(url);
 
@@ -106,7 +107,7 @@ class CrawlerEngineTest {
         Webpage webpage = new Webpage(
                 new Link(brokenUrl, true), null, null, 0
         );
-        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(webpage);
+        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(Optional.of(webpage));
 
         crawlerEngine.crawl(brokenUrl);
 

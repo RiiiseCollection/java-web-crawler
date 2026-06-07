@@ -4,23 +4,25 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UrlUtilTest {
 
     @Test
-    public void getDomainReturnsCorrect() throws URISyntaxException {
-        UrlUtil urlUtil = new UrlUtil();
+    public void getDomainReturnsCorrect() {
+        Optional<String> domain = UrlUtil.getDomain("https://aau.at");
 
-        assertEquals("aau.at", urlUtil.getDomain("https://aau.at"));
+        assertTrue(domain.isPresent());
+        assertEquals("aau.at", domain.get());
     }
 
     @Test
-    public void getDomainHandelsInvalidInput() throws URISyntaxException {
-        UrlUtil urlUtil = new UrlUtil();
+    public void getDomainHandlesInvalidInput() {
+        Optional<String> domain = UrlUtil.getDomain("test");
 
-        assertNull(urlUtil.getDomain("test"));
+        assertTrue(domain.isEmpty());
     }
 
     @Test

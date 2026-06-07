@@ -2,9 +2,9 @@ package at.cc.main.javawebcrawler.core.fetcher;
 
 import at.cc.main.javawebcrawler.data.fetch.FetchResult;
 import at.cc.main.javawebcrawler.network.HttpClient;
-import org.jsoup.Connection;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
 public class UrlFetcher {
     private final HttpClient httpClient;
@@ -17,22 +17,23 @@ public class UrlFetcher {
         FetchResult fetchResult = new FetchResult(url);
 
         try {
-            Connection.Response response = httpClient.fetchUrl(url);
+            httpClient.fetchUrl(url).ifPresentOrElse(
+                    response -> {
+                        fetchResult.setStatusCode(response.statusCode());
 
-            if (response == null) {
-                fetchResult.setSuccess(false);
-                fetchResult.setErrorMsg("Provided url was null");
-            } else {
-                fetchResult.setStatusCode(response.statusCode());
-
-                if (fetchResult.getStatusCode() == 200) {
-                    fetchResult.setDocument(response.parse());
-                    fetchResult.setSuccess(true);
-                } else {
-                    fetchResult.setSuccess(false);
-                    fetchResult.setErrorMsg("Error fetching Url. StatusCode: " + fetchResult.getStatusCode());
-                }
-            }
+                        if (response.statusCode() == HttpURLConnection.HTTP_OK) {
+                            fetchResult.setBody(response.body());
+                            fetchResult.setSuccess(true);
+                        } else {
+                            fetchResult.setSuccess(false);
+                            fetchResult.setErrorMsg("Error fetching URL. StatusCode: " + fetchResult.getStatusCode());
+                        }
+                    },
+                    () -> {
+                        fetchResult.setSuccess(false);
+                        fetchResult.setErrorMsg("Failed to fetch url: " + url);
+                    }
+            );
         } catch (IOException e) {
             fetchResult.setSuccess(false);
             fetchResult.setErrorMsg(e.getMessage());

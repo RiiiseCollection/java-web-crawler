@@ -5,42 +5,32 @@ import at.cc.main.javawebcrawler.data.webpage.HeaderLevel;
 import at.cc.main.javawebcrawler.data.webpage.Headline;
 import at.cc.main.javawebcrawler.data.webpage.Link;
 import at.cc.main.javawebcrawler.data.webpage.Webpage;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class HtmlExtractor {
 
-    public Webpage extractWebpage(FetchResult fetchResult, int currentDepth) {
-        Webpage webpage;
-
+    public Optional<Webpage> extractWebpage(FetchResult fetchResult, int currentDepth) {
         if (fetchResult.isBrokenUrl()) {
-            webpage = new Webpage(new Link(fetchResult.getUrl(), true), null, null, currentDepth);
-        } else {
-            if (fetchResult.getDocument() == null) {
-                return null;
-            }
-
-            Document doc = fetchResult.getDocument();
-
-            LinkedHashSet<Link> links = extractLinks(doc);
-            List<Headline> headlines = extractHeadlines(doc);
-
-            webpage = new Webpage(new Link(fetchResult.getUrl(), false), links, headlines, currentDepth);
+            return Optional.of(new Webpage(new Link(fetchResult.getUrl(), true), Collections.emptySet(), Collections.emptyList(), currentDepth));
         }
-        return webpage;
+
+        if (fetchResult.getBody() == null) {
+            return Optional.empty();
+        }
+
+        Document doc = Jsoup.parse(fetchResult.getBody(), fetchResult.getUrl());
+        LinkedHashSet<Link> links = extractLinks(doc);
+        List<Headline> headlines = extractHeadlines(doc);
+
+        return Optional.of(new Webpage(new Link(fetchResult.getUrl(), false), links, headlines, currentDepth));
     }
 
     private LinkedHashSet<Link> extractLinks(Document doc) {
-        if (doc == null) {
-            return null;
-        }
-
         LinkedHashSet<Link> links = new LinkedHashSet<>();
 
         Elements docLinks = doc.select("a[href]");
@@ -52,34 +42,30 @@ public class HtmlExtractor {
     }
 
     private List<Headline> extractHeadlines(Document doc) {
-        if (doc == null) {
-            return null;
-        }
-
         ArrayList<Headline> headlines = new ArrayList<>();
 
         Elements docHeadlines = doc.select("h1, h2, h3, h4, h5, h6");
         Stack<Headline> headlineStack = new Stack<>();
 
         for (Element headline : docHeadlines) {
-            String text = headline.text();
-            HeaderLevel level = HeaderLevel.tagToLevel(headline.tag());
+            HeaderLevel.tagToLevel(headline.tag()).ifPresent(level -> {
+                String text = headline.text();
 
-            while (!headlineStack.isEmpty() && headlineStack.peek().getHeaderLevel().getLevel() >= level.getLevel()) {
-                headlineStack.pop();
-            }
+                while (!headlineStack.isEmpty() && headlineStack.peek().getHeaderLevel().getLevel() >= level.getLevel()) {
+                    headlineStack.pop();
+                }
 
-            Headline parent = headlineStack.isEmpty() ? null : headlineStack.peek();
-            Headline item = new Headline(level, text, parent);
+                Headline parent = headlineStack.isEmpty() ? null : headlineStack.peek();
+                Headline item = new Headline(level, text, parent);
 
-            headlines.add(item);
-            headlineStack.push(item);
+                headlines.add(item);
+                headlineStack.push(item);
 
-            if (parent != null) {
-                parent.addChild(item);
-            }
+                if (parent != null) {
+                    parent.addChild(item);
+                }
+            });
         }
-
         return headlines;
     }
 

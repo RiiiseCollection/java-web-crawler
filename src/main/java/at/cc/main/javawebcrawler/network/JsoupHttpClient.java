@@ -1,5 +1,6 @@
 package at.cc.main.javawebcrawler.network;
 
+import at.cc.main.javawebcrawler.data.fetch.HttpResponse;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
@@ -8,26 +9,31 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 
 public class JsoupHttpClient implements HttpClient {
     private static final int TIMEOUT_DELAY_MILLIS = 5000;
     private static final String TLS_PROVIDER = "TLS";
-    private final SSLContext unsafeSSLContext;
+    private SSLContext unsafeSSLContext;
+    private boolean isSSLFallbackAvailable = false;
 
     public JsoupHttpClient() {
-        this.unsafeSSLContext = initUnsafeSSL();
+        initUnsafeSSL();
     }
 
     @Override
-    public Connection.Response fetchUrl(String url) throws IOException {
-        if (url == null) return null;
+    public Optional<HttpResponse> fetchUrl(String url) throws IOException {
+        if (url == null) throw new IllegalArgumentException("URL must not be null!");
 
         try {
-            return fetchUrlDefault(url);
+            return Optional.of(toHttpResponse(fetchUrlDefault(url)));
         } catch (javax.net.ssl.SSLException e) {
-            if (unsafeSSLContext == null) return null;
+            if (!isSSLFallbackAvailable) return Optional.empty();
 
-            return fetchUrlWithoutCertificateCheck(url, unsafeSSLContext);
+            return Optional.of(toHttpResponse(fetchUrlWithoutCertificateCheck(url, unsafeSSLContext)));
+        } catch (IOException e) {
+            System.err.println("Failed to fetch url: " + url);
+            return Optional.empty();
         }
     }
 
@@ -48,7 +54,7 @@ public class JsoupHttpClient implements HttpClient {
                 .execute();
     }
 
-    private SSLContext initUnsafeSSL() {
+    private void initUnsafeSSL() {
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{
                     new X509TrustManager() {
@@ -67,9 +73,15 @@ public class JsoupHttpClient implements HttpClient {
             SSLContext sslContext = SSLContext.getInstance(TLS_PROVIDER);
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
 
-            return sslContext;
+            unsafeSSLContext = sslContext;
+            isSSLFallbackAvailable = true;
         } catch (Exception e) {
-            return null;
+            System.err.print("Failed to initialize unsafeSSLContext (Fallback unavailable)");
+            isSSLFallbackAvailable = false;
         }
+    }
+
+    private HttpResponse toHttpResponse(Connection.Response response) {
+        return new HttpResponse(response.statusCode(), response.body(), response.url().toString());
     }
 }

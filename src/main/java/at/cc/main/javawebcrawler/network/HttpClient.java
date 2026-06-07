@@ -1,9 +1,10 @@
 package at.cc.main.javawebcrawler.network;
 
-import org.jsoup.Connection;
+import at.cc.main.javawebcrawler.data.fetch.HttpResponse;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public interface HttpClient {
-    Connection.Response fetchUrl(String url) throws IOException;
+    Optional<HttpResponse> fetchUrl(String url) throws IOException;
 }
