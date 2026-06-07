@@ -5,7 +5,7 @@ import at.cc.main.javawebcrawler.core.fetcher.UrlFetcher;
 import at.cc.main.javawebcrawler.data.fetch.FetchResult;
 import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import at.cc.main.javawebcrawler.network.JsoupHttpClient;
-import at.cc.main.javawebcrawler.util.UrlUtil;
+import at.cc.main.javawebcrawler.util.DomainValidator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,7 +42,7 @@ public class CrawlerEngine {
             return;
         }
 
-        if (!UrlUtil.isAllowedDomain(url, allowedDomains)) {
+        if (!DomainValidator.isAllowedDomain(url, allowedDomains)) {
             return;
         }
 
