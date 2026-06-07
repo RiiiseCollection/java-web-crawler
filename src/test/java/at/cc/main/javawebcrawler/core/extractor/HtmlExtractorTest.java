@@ -84,7 +84,7 @@ class HtmlExtractorTest {
     }
 
     @Test
-    void shouldReturnEmptyWhenDocumentIsNull() {
+    void shouldReturnEmptyWhenBodyIsNull() {
         fetchResult.setSuccess(true);
         fetchResult.setBody(null);
 
