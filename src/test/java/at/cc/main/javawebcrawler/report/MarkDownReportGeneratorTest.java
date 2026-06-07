@@ -27,11 +27,19 @@ class MarkdownReportGeneratorTest {
     }
 
     @Test
-    void generateBasicReportFormat() throws IOException {
+    void reportsInputUrl() throws IOException {
         List<Webpage> pages = new ArrayList<>();
         pages.add(new Webpage(new Link("www.sample-input.com", false), new LinkedHashSet<>(), new ArrayList<>(), 1));
 
-        assertReportContains(pages, "input: <a>www.sample-input.com</a>", "<br>depth: 1");
+        assertReportContains(pages, "input: <a>www.sample-input.com</a>");
+    }
+
+    @Test
+    void reportsDepth() throws IOException {
+        List<Webpage> pages = new ArrayList<>();
+        pages.add(new Webpage(new Link("www.sample-input.com", false), new LinkedHashSet<>(), new ArrayList<>(), 1));
+
+        assertReportContains(pages, "<br>depth: 1");
     }
 
     @Test
@@ -51,7 +59,17 @@ class MarkdownReportGeneratorTest {
     }
 
     @Test
-    void writesHeadlinesWithCorrectMarkdown() throws IOException {
+    void writesH1HeadlineWithCorrectMarkdown() throws IOException {
+        Headline h1 = new Headline(HeaderLevel.H1, "Main Title", null);
+
+        List<Webpage> pages = new ArrayList<>();
+        pages.add(new Webpage(new Link("https://sample-input.com", false), new LinkedHashSet<>(), List.of(h1), 0));
+
+        assertReportContains(pages, "# -> Main Title");
+    }
+
+    @Test
+    void writesChildHeadlineWithCorrectMarkdown() throws IOException {
         Headline h1 = new Headline(HeaderLevel.H1, "Main Title", null);
         Headline h2 = new Headline(HeaderLevel.H2, "Subtitle", h1);
         h1.addChild(h2);
@@ -59,19 +77,29 @@ class MarkdownReportGeneratorTest {
         List<Webpage> pages = new ArrayList<>();
         pages.add(new Webpage(new Link("https://sample-input.com", false), new LinkedHashSet<>(), List.of(h1, h2), 0));
 
-        assertReportContains(pages, "# -> Main Title", "## -> Subtitle");
+        assertReportContains(pages, "## -> Subtitle");
     }
 
     @Test
-    void writesSinglePageLinkTree() throws IOException {
+    void writesLinkInLinkTree() throws IOException {
         LinkedHashSet<Link> links = new LinkedHashSet<>();
         links.add(new Link("https://sample-input.com/page", false));
+
+        List<Webpage> pages = new ArrayList<>();
+        pages.add(new Webpage(new Link("https://sample-input.com", false), links, new ArrayList<>(), 0));
+
+        assertReportContains(pages, "link to <a>https://sample-input.com/page</a>");
+    }
+
+    @Test
+    void writesBrokenLinkInLinkTree() throws IOException {
+        LinkedHashSet<Link> links = new LinkedHashSet<>();
         links.add(new Link("https://sample-input.com/broken", true));
 
         List<Webpage> pages = new ArrayList<>();
         pages.add(new Webpage(new Link("https://sample-input.com", false), links, new ArrayList<>(), 0));
 
-        assertReportContains(pages, "link to <a>https://sample-input.com/page</a>", "broken link <a>https://sample-input.com/broken</a>");
+        assertReportContains(pages, "broken link <a>https://sample-input.com/broken</a>");
     }
 
     private String generateAndReadReport(List<Webpage> pages) throws IOException {
