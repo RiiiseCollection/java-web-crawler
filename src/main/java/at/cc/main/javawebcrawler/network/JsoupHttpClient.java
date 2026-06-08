@@ -22,15 +22,13 @@ public class JsoupHttpClient implements HttpClient {
     }
 
     @Override
-    public Optional<HttpResponse> fetchUrl(String url) throws IOException {
+    public Optional<HttpResponse> fetchUrl(String url) {
         if (url == null) throw new IllegalArgumentException("URL must not be null!");
 
         try {
             return Optional.of(toHttpResponse(fetchUrlDefault(url)));
         } catch (javax.net.ssl.SSLException e) {
-            if (!isSSLFallbackAvailable) return Optional.empty();
-
-            return Optional.of(toHttpResponse(fetchUrlWithoutCertificateCheck(url, unsafeSSLContext)));
+            return trySSLFallback(url);
         } catch (IOException e) {
             System.err.println("Failed to fetch url: " + url);
             return Optional.empty();
@@ -52,6 +50,17 @@ public class JsoupHttpClient implements HttpClient {
                 .sslContext(context)
                 .ignoreHttpErrors(true)
                 .execute();
+    }
+
+    private Optional<HttpResponse> trySSLFallback(String url) {
+        if (!isSSLFallbackAvailable) return Optional.empty();
+
+        try {
+            return Optional.of(toHttpResponse(fetchUrlWithoutCertificateCheck(url, unsafeSSLContext)));
+        } catch (IOException e) {
+            System.err.println("SSL fallback failed for url: " + url);
+            return Optional.empty();
+        }
     }
 
     private void initUnsafeSSL() {

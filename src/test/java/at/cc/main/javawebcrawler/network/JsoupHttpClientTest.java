@@ -7,8 +7,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+import javax.net.ssl.SSLException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Optional;
 
@@ -17,38 +20,112 @@ import static org.mockito.Mockito.*;
 
 public class JsoupHttpClientTest {
 
+    private static final String TEST_URL = "https://aau.at";
+    private static final String TEST_RESPONSE_BODY = "<html>test</html>";
+
     Connection.Response response;
-    Connection connection;
+    Connection defaultConnection;
+    Connection fallbackConnection;
     JsoupHttpClient client;
 
     @BeforeEach
-    void setup() {
+    void setup() throws MalformedURLException {
         response = mock(Connection.Response.class);
-        connection = mock(Connection.class);
+        defaultConnection = mock(Connection.class);
+        fallbackConnection = mock(Connection.class);
         client = new JsoupHttpClient();
+
+        when(defaultConnection.timeout(anyInt())).thenReturn(defaultConnection);
+        when(defaultConnection.followRedirects(anyBoolean())).thenReturn(defaultConnection);
+        when(defaultConnection.ignoreHttpErrors(anyBoolean())).thenReturn(defaultConnection);
+
+        when(fallbackConnection.timeout(anyInt())).thenReturn(fallbackConnection);
+        when(fallbackConnection.followRedirects(anyBoolean())).thenReturn(fallbackConnection);
+        when(fallbackConnection.ignoreHttpErrors(anyBoolean())).thenReturn(fallbackConnection);
+        when(fallbackConnection.sslContext(any())).thenReturn(fallbackConnection);
+
+        when(response.statusCode()).thenReturn(HttpURLConnection.HTTP_OK);
+        when(response.body()).thenReturn(TEST_RESPONSE_BODY);
+        when(response.url()).thenReturn(URI.create(TEST_URL).toURL());
     }
 
     @Test
-    void correctlyReturnsResponseOnUrl() throws IOException {
+    void correctlyReturnResponseOnUrl() throws IOException {
         try (MockedStatic<Jsoup> jsoupMock = mockStatic(Jsoup.class)) {
-            jsoupMock.when(() -> Jsoup.connect("https://aau.at"))
-                    .thenReturn(connection);
+            jsoupMock.when(() -> Jsoup.connect(TEST_URL))
+                    .thenReturn(defaultConnection);
+            when(defaultConnection.execute()).thenReturn(response);
 
-            when(connection.timeout(anyInt())).thenReturn(connection);
-            when(connection.followRedirects(anyBoolean())).thenReturn(connection);
-            when(connection.ignoreHttpErrors(anyBoolean())).thenReturn(connection);
-            when(connection.execute()).thenReturn(response);
-
-            when(response.statusCode()).thenReturn(HttpURLConnection.HTTP_OK);
-            when(response.body()).thenReturn("<html>test</html>");
-            when(response.url()).thenReturn(URI.create("https://aau.at").toURL());
-
-            Optional<HttpResponse> result = client.fetchUrl("https://aau.at");
+            Optional<HttpResponse> result = client.fetchUrl(TEST_URL);
 
             assertTrue(result.isPresent());
             assertEquals(HttpURLConnection.HTTP_OK, result.get().statusCode());
-            assertEquals("<html>test</html>", result.get().body());
-            assertEquals("https://aau.at", result.get().url());
+            assertEquals(TEST_RESPONSE_BODY, result.get().body());
+            assertEquals(TEST_URL, result.get().url());
+        }
+    }
+
+    @Test
+    void correctlyReturnEmptyOnSSLExceptionIfFallbackUnavailable() throws IOException, NoSuchFieldException, IllegalAccessException {
+        try (MockedStatic<Jsoup> jsoupMock = mockStatic(Jsoup.class)) {
+            jsoupMock.when(() -> Jsoup.connect(TEST_URL))
+                    .thenReturn(defaultConnection);
+            when(defaultConnection.execute()).thenThrow(new SSLException("SSL Exception"));
+
+            Field field = JsoupHttpClient.class.getDeclaredField("isSSLFallbackAvailable");
+            field.setAccessible(true);
+            field.set(client, false);
+
+            Optional<HttpResponse> result = client.fetchUrl(TEST_URL);
+
+            assertTrue(result.isEmpty());
+        }
+    }
+
+    @Test
+    void correctlyReturnResponseOnSSLExceptionIfFallbackAvailable() throws IOException {
+        try (MockedStatic<Jsoup> jsoupMock = mockStatic(Jsoup.class)) {
+            jsoupMock.when(() -> Jsoup.connect(TEST_URL))
+                    .thenReturn(defaultConnection)
+                    .thenReturn(fallbackConnection);
+            when(defaultConnection.execute()).thenThrow(new SSLException("SSL Exception"));
+            when(fallbackConnection.execute()).thenReturn(response);
+
+            Optional<HttpResponse> result = client.fetchUrl(TEST_URL);
+
+            assertTrue(result.isPresent());
+            assertEquals(HttpURLConnection.HTTP_OK, result.get().statusCode());
+            assertEquals(TEST_RESPONSE_BODY, result.get().body());
+            assertEquals(TEST_URL, result.get().url());
+            verify(fallbackConnection).sslContext(any());
+        }
+    }
+
+    @Test
+    void correctlyReturnEmptyOnFallbackFailed() throws IOException {
+        try (MockedStatic<Jsoup> jsoupMock = mockStatic(Jsoup.class)) {
+            jsoupMock.when(() -> Jsoup.connect(TEST_URL))
+                    .thenReturn(defaultConnection)
+                    .thenReturn(fallbackConnection);
+            when(defaultConnection.execute()).thenThrow(new SSLException("SSL Exception"));
+            when(fallbackConnection.execute()).thenThrow(new IOException("Fallback IO Exception"));
+
+            Optional<HttpResponse> result = client.fetchUrl(TEST_URL);
+
+            assertTrue(result.isEmpty());
+        }
+    }
+
+    @Test
+    void correctlyReturnEmptyOnIOException() throws IOException {
+        try (MockedStatic<Jsoup> jsoupMock = mockStatic(Jsoup.class)) {
+            jsoupMock.when(() -> Jsoup.connect(TEST_URL))
+                    .thenReturn(defaultConnection);
+            when(defaultConnection.execute()).thenThrow(new IOException("IO Exception"));
+
+            Optional<HttpResponse> result = client.fetchUrl(TEST_URL);
+
+            assertTrue(result.isEmpty());
         }
     }
 
