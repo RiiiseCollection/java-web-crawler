@@ -4,13 +4,16 @@ import at.cc.main.javawebcrawler.core.engine.CrawlerEngine;
 import at.cc.main.javawebcrawler.exception.InputValidationException;
 import at.cc.main.javawebcrawler.report.MarkdownReportGenerator;
 import at.cc.main.javawebcrawler.validator.InputValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
 
         try {
             InputValidator.validateInput(args);
@@ -23,9 +26,9 @@ public class Main {
                 allowedDomains.add(args[i]);
             }
 
-            System.out.println("Start URL: " + startUrl);
-            System.out.println("Max depth: " + maxDepth);
-            System.out.println("Allowed domains: " + allowedDomains);
+            log.info("Start URL: {}", startUrl);
+            log.info("Max depth: {}", maxDepth);
+            log.info("Allowed domains: {}", allowedDomains);
 
             CrawlerEngine crawler = new CrawlerEngine(maxDepth, allowedDomains);
             crawler.crawl(startUrl);
@@ -33,11 +36,11 @@ public class Main {
             MarkdownReportGenerator reportGenerator = new MarkdownReportGenerator();
             reportGenerator.generateReport(crawler.getCrawledPages());
 
-            System.out.println("\nCrawling completed successfully!");
-            System.out.println("Pages crawled: " + crawler.getVisitedUrls().size());
+            log.info("\nCrawling completed successfully!\nPages crawled: {}", crawler.getVisitedUrls().size());
 
         } catch (InputValidationException e) {
             System.err.println(e.getMessage());
+            log.error("Invalid input: {}", e.getMessage());
             System.exit(2);
         }
     }
