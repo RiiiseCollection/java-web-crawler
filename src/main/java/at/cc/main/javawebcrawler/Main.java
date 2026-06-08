@@ -39,7 +39,6 @@ public class Main {
             log.info("\nCrawling completed successfully!\nPages crawled: {}", crawler.getVisitedUrls().size());
 
         } catch (InputValidationException e) {
-            System.err.println(e.getMessage());
             log.error("Invalid input: {}", e.getMessage());
             System.exit(2);
         }
