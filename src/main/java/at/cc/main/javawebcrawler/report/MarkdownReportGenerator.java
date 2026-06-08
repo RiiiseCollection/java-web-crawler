@@ -14,13 +14,27 @@ public class MarkdownReportGenerator {
     private static final String REPORT_FILENAME = "crawl-report.md";
 
     public void generateReport(List<Webpage> crawledPages) {
+        if (crawledPages.size() == 1) {
+            generateSinglePageReport(crawledPages.getFirst());
+        } else {
+            generateMultiPageReport(crawledPages);
+        }
+    }
+
+    public void generateSinglePageReport(Webpage page) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(REPORT_FILENAME))) {
+            writePageEntry(writer, page);
+            writeLinkTree(writer, page);
+            System.out.println("Report generated: " + REPORT_FILENAME);
+        } catch (IOException e) {
+            System.err.println("Error generating report: " + e.getMessage());
+        }
+    }
+
+    public void generateMultiPageReport(List<Webpage> crawledPages) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(REPORT_FILENAME))) {
             for (Webpage page : crawledPages) {
                 writePageEntry(writer, page);
-
-                if (crawledPages.size() == 1) {
-                    writeLinkTree(writer, page);
-                }
             }
             System.out.println("Report generated: " + REPORT_FILENAME);
         } catch (IOException e) {

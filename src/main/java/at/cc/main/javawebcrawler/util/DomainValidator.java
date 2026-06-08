@@ -5,9 +5,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
-public class UrlUtil {
+public class DomainValidator {
 
-    public static Optional<String> getDomain(String url) {
+    public static Optional<String> extractDomain(String url) {
         try {
             URI uri = new URI(url);
             return Optional.of(uri.getHost());
@@ -17,7 +17,7 @@ public class UrlUtil {
     }
 
     public static boolean isAllowedDomain(String url, List<String> allowedDomains) {
-        Optional<String> hostOptional = getDomain(url);
+        Optional<String> hostOptional = extractDomain(url);
 
         if(hostOptional.isEmpty()) return false;
 

@@ -5,7 +5,7 @@ import at.cc.main.javawebcrawler.core.fetcher.UrlFetcher;
 import at.cc.main.javawebcrawler.data.fetch.FetchResult;
 import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import at.cc.main.javawebcrawler.network.JsoupHttpClient;
-import at.cc.main.javawebcrawler.util.UrlUtil;
+import at.cc.main.javawebcrawler.util.DomainValidator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,7 +42,7 @@ public class CrawlerEngine {
             return;
         }
 
-        if (!UrlUtil.isAllowedDomain(url, allowedDomains)) {
+        if (!DomainValidator.isAllowedDomain(url, allowedDomains)) {
             return;
         }
 
@@ -50,17 +50,22 @@ public class CrawlerEngine {
         System.out.println("Crawling: " + url + " at depth " + currentDepth);
 
         FetchResult fetchResult = urlFetcher.fetchUrl(url);
+        processFetchResult(fetchResult, currentDepth);
+    }
 
+    private void processFetchResult(FetchResult fetchResult, int currentDepth) {
         htmlExtractor.extractWebpage(fetchResult, currentDepth).ifPresent(page -> {
             crawledPages.add(page);
-
-            if (fetchResult.isSuccess() && currentDepth < maxDepth) {
-                page.links().stream()
-                        .filter(link -> !link.isBroken())
-                        .forEach(linkObj -> crawlRecursive(linkObj.link(), currentDepth + 1));
-            }
+            crawlChildPages(fetchResult, page, currentDepth);
         });
+    }
 
+    private void crawlChildPages(FetchResult fetchResult, Webpage page, int currentDepth) {
+        if (fetchResult.isSuccess() && currentDepth < maxDepth) {
+            page.links().stream()
+                    .filter(link -> !link.isBroken())
+                    .forEach(linkObj -> crawlRecursive(linkObj.link(), currentDepth + 1));
+        }
     }
 
     public List<Webpage> getCrawledPages() {

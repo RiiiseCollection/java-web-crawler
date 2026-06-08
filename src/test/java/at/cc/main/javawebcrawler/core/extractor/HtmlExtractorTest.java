@@ -42,21 +42,41 @@ class HtmlExtractorTest {
     }
 
     @Test
-    void correctlyExtractsLinksAndHeadlines() {
+    void extractsCorrectNumberOfLinks() {
         fetchResult.setSuccess(true);
         fetchResult.setBody(body);
 
-        Optional<Webpage> result = htmlExtractor.extractWebpage(fetchResult, depth);
-
-        assertTrue(result.isPresent());
-        Webpage webpage = result.get();
+        Webpage webpage = htmlExtractor.extractWebpage(fetchResult, depth).orElseThrow();
 
         assertEquals(2, webpage.links().size());
+    }
+
+    @Test
+    void extractsCorrectNumberOfHeadlines() {
+        fetchResult.setSuccess(true);
+        fetchResult.setBody(body);
+
+        Webpage webpage = htmlExtractor.extractWebpage(fetchResult, depth).orElseThrow();
 
         assertEquals(4, webpage.headlines().size());
-        assertEquals("Main Headline", webpage.headlines().getFirst().getText());
-        assertEquals("Subtitle 1", webpage.headlines().get(1).getText());
+    }
+
+    @Test
+    void setsCorrectDepth() {
+        fetchResult.setSuccess(true);
+        fetchResult.setBody(body);
+
+        Webpage webpage = htmlExtractor.extractWebpage(fetchResult, depth).orElseThrow();
+
         assertEquals(depth, webpage.depth());
+    }
+
+    @Test
+    void buildsCorrectHeadlineHierarchy() {
+        fetchResult.setSuccess(true);
+        fetchResult.setBody(body);
+
+        Webpage webpage = htmlExtractor.extractWebpage(fetchResult, depth).orElseThrow();
 
         Headline mainHeadline = webpage.headlines().getFirst();
         Headline subtitle1 = webpage.headlines().get(1);

@@ -2,25 +2,24 @@ package at.cc.main.javawebcrawler.util;
 
 import org.junit.jupiter.api.Test;
 
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UrlUtilTest {
+public class DomainValidatorTest {
 
     @Test
-    public void getDomainReturnsCorrect() {
-        Optional<String> domain = UrlUtil.getDomain("https://aau.at");
+    public void extractDomainReturnsCorrect() {
+        Optional<String> domain = DomainValidator.extractDomain("https://aau.at");
 
         assertTrue(domain.isPresent());
         assertEquals("aau.at", domain.get());
     }
 
     @Test
-    public void getDomainHandlesInvalidInput() {
-        Optional<String> domain = UrlUtil.getDomain("test");
+    public void extractDomainHandlesInvalidInput() {
+        Optional<String> domain = DomainValidator.extractDomain("test");
 
         assertTrue(domain.isEmpty());
     }
@@ -30,7 +29,7 @@ public class UrlUtilTest {
         String url = "https://aau.at";
         List<String> allowed = List.of("aau.at");
 
-        assertTrue(UrlUtil.isAllowedDomain(url, allowed));
+        assertTrue(DomainValidator.isAllowedDomain(url, allowed));
     }
 
     @Test
@@ -38,7 +37,7 @@ public class UrlUtilTest {
         String url = "https://www.aau.at";
         List<String> allowed = List.of("aau.at");
 
-        assertTrue(UrlUtil.isAllowedDomain(url, allowed));
+        assertTrue(DomainValidator.isAllowedDomain(url, allowed));
     }
 
     @Test
@@ -46,7 +45,7 @@ public class UrlUtilTest {
         String url = "https://test.aau.at";
         List<String> allowed = List.of("aau.at");
 
-        assertTrue(UrlUtil.isAllowedDomain(url, allowed));
+        assertTrue(DomainValidator.isAllowedDomain(url, allowed));
     }
 
     @Test
@@ -54,7 +53,7 @@ public class UrlUtilTest {
         String url = "https://another.test.aau.at";
         List<String> allowed = List.of("aau.at");
 
-        assertTrue(UrlUtil.isAllowedDomain(url, allowed));
+        assertTrue(DomainValidator.isAllowedDomain(url, allowed));
     }
 
     @Test
@@ -62,7 +61,7 @@ public class UrlUtilTest {
         String url = "https://notaau.at";
         List<String> allowed = List.of("aau.at");
 
-        assertFalse(UrlUtil.isAllowedDomain(url, allowed));
+        assertFalse(DomainValidator.isAllowedDomain(url, allowed));
     }
 
     @Test
@@ -70,7 +69,7 @@ public class UrlUtilTest {
         String url = "https://aau.at";
         List<String> allowed = List.of("www.aau.at");
 
-        assertTrue(UrlUtil.isAllowedDomain(url, allowed));
+        assertTrue(DomainValidator.isAllowedDomain(url, allowed));
     }
 
     @Test
@@ -78,7 +77,7 @@ public class UrlUtilTest {
         String url = "invalid-url";
         List<String> allowed = List.of("aau.at");
 
-        assertFalse(UrlUtil.isAllowedDomain(url, allowed));
+        assertFalse(DomainValidator.isAllowedDomain(url, allowed));
     }
 
     @Test
@@ -86,7 +85,7 @@ public class UrlUtilTest {
         String url = "http:///invalid";
         List<String> allowed = List.of("aau.at");
 
-        assertFalse(UrlUtil.isAllowedDomain(url, allowed));
+        assertFalse(DomainValidator.isAllowedDomain(url, allowed));
     }
 
     @Test
@@ -94,6 +93,6 @@ public class UrlUtilTest {
         String url = "https://test.com";
         List<String> allowed = List.of("aau.at", "test.com");
 
-        assertTrue(UrlUtil.isAllowedDomain(url, allowed));
+        assertTrue(DomainValidator.isAllowedDomain(url, allowed));
     }
 }

@@ -116,8 +116,12 @@ class CrawlerEngineTest {
     }
 
     @Test
-    void initiallyReturnEmptyList() {
+    void initiallyHasNoCrawledPages() {
         assertTrue(crawlerEngine.getCrawledPages().isEmpty());
+    }
+
+    @Test
+    void initiallyHasNoVisitedUrls() {
         assertTrue(crawlerEngine.getVisitedUrls().isEmpty());
     }
 }
