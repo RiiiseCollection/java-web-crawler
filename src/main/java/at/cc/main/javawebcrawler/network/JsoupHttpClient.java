@@ -36,7 +36,6 @@ public class JsoupHttpClient implements HttpClient {
                 log.warn("SSL error fetching {} and no SSL fallback available: {}", url, e.getMessage());
                 return Optional.empty();
             }
-            log.warn("SSL error fetching {}, retrying without certificate check: {}", url, e.getMessage());
             return Optional.of(toHttpResponse(fetchUrlWithoutCertificateCheck(url, unsafeSSLContext)));
         } catch (IOException e) {
             log.error("Failed to fetch url {}: {}", url, e.getMessage());
@@ -89,6 +88,8 @@ public class JsoupHttpClient implements HttpClient {
     }
 
     private HttpResponse toHttpResponse(Connection.Response response) {
+        System.out.println(response.url().toString());
+
         return new HttpResponse(response.statusCode(), response.body(), response.url().toString());
     }
 }
