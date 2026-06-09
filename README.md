@@ -14,6 +14,7 @@ A simple recursive web crawler that extracts headings and links from websites, r
 - Avoid visiting the same URL multiple times
 - Detect and highlight broken links
 - Generate a Markdown report (`crawl-report.md`)
+- Generate a Log of errors (`crawler-errors.log`)
 
 ---
 
@@ -50,7 +51,7 @@ java -jar crawler.jar <URL> <DEPTH> <DOMAIN_1> <DOMAIN_2> ...
 ```bash
 java -jar crawler.jar https://aau.at 2 aau.at
 ```
-`Beware, this example will crawl around 450 links as of 2026-04-28!`
+`Beware, this example will crawl around 3177 links as of 2026-06-09!`
 
 ## Arguments
 - \<URL> - starting page to crawl (must be http/https)
