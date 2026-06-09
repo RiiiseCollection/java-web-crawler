@@ -15,7 +15,6 @@ import java.util.Optional;
 
 public class JsoupHttpClient implements HttpClient {
     private static final Logger log = LoggerFactory.getLogger(JsoupHttpClient.class);
-
     private static final int TIMEOUT_DELAY_MILLIS = 5000;
     private static final String TLS_PROVIDER = "TLS";
     private SSLContext unsafeSSLContext;
@@ -26,19 +25,15 @@ public class JsoupHttpClient implements HttpClient {
     }
 
     @Override
-    public Optional<HttpResponse> fetchUrl(String url) throws IOException {
+    public Optional<HttpResponse> fetchUrl(String url) {
         if (url == null) throw new IllegalArgumentException("URL must not be null!");
 
         try {
             return Optional.of(toHttpResponse(fetchUrlDefault(url)));
         } catch (javax.net.ssl.SSLException e) {
-            if (!isSSLFallbackAvailable) {
-                log.warn("SSL error fetching {} and no SSL fallback available: {}", url, e.getMessage());
-                return Optional.empty();
-            }
-            return Optional.of(toHttpResponse(fetchUrlWithoutCertificateCheck(url, unsafeSSLContext)));
+            return trySSLFallback(url);
         } catch (IOException e) {
-            log.error("Failed to fetch url {}: {}", url, e.getMessage());
+            log.warn("Failed to fetch url: {}", url);
             return Optional.empty();
         }
     }
@@ -58,6 +53,17 @@ public class JsoupHttpClient implements HttpClient {
                 .sslContext(context)
                 .ignoreHttpErrors(true)
                 .execute();
+    }
+
+    private Optional<HttpResponse> trySSLFallback(String url) {
+        if (!isSSLFallbackAvailable) return Optional.empty();
+
+        try {
+            return Optional.of(toHttpResponse(fetchUrlWithoutCertificateCheck(url, unsafeSSLContext)));
+        } catch (IOException e) {
+            log.warn("SSL fallback failed for url: {}", url);
+            return Optional.empty();
+        }
     }
 
     private void initUnsafeSSL() {
@@ -82,14 +88,12 @@ public class JsoupHttpClient implements HttpClient {
             unsafeSSLContext = sslContext;
             isSSLFallbackAvailable = true;
         } catch (Exception e) {
-            log.warn("Failed to initialize unsafeSSLContext (SSL fallback unavailable): {}", e.getMessage());
+            log.warn("Failed to initialize unsafeSSLContext (Fallback unavailable)");
             isSSLFallbackAvailable = false;
         }
     }
 
     private HttpResponse toHttpResponse(Connection.Response response) {
-        System.out.println(response.url().toString());
-
         return new HttpResponse(response.statusCode(), response.body(), response.url().toString());
     }
 }
