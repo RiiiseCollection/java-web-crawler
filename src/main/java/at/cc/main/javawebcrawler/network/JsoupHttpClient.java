@@ -33,7 +33,7 @@ public class JsoupHttpClient implements HttpClient {
         } catch (javax.net.ssl.SSLException e) {
             return trySSLFallback(url);
         } catch (IOException e) {
-            log.warn("Failed to fetch url: {}", url);
+            log.error("Failed to fetch url: {}", url);
             return Optional.empty();
         }
     }
@@ -61,7 +61,7 @@ public class JsoupHttpClient implements HttpClient {
         try {
             return Optional.of(toHttpResponse(fetchUrlWithoutCertificateCheck(url, unsafeSSLContext)));
         } catch (IOException e) {
-            log.warn("SSL fallback failed for url: {}", url);
+            log.error("SSL fallback failed for url: {}", url);
             return Optional.empty();
         }
     }
