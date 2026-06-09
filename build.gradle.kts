@@ -24,7 +24,7 @@ dependencies {
     mockitoAgent("net.bytebuddy:byte-buddy-agent:1.15.11") { isTransitive = false }
 
     implementation("org.slf4j:slf4j-api:2.0.13")
-    implementation("ch.qos.logback:logback-classic:1.5.6")
+    implementation("ch.qos.logback:logback-classic:1.5.34")
 }
 
 tasks.test {
