@@ -7,6 +7,7 @@ import at.cc.main.javawebcrawler.data.webpage.Link;
 import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import at.cc.main.javawebcrawler.network.JsoupHttpClient;
 import at.cc.main.javawebcrawler.util.DomainValidator;
+import at.cc.main.javawebcrawler.util.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,10 +125,6 @@ public class CrawlerEngine {
                 return processAndCollectChildren(fetchResult);
             } catch (Exception e) {
                 log.error("Unexpected error crawling {}: {}", url, e.getMessage(), e);
-                FetchResult errorResult = new FetchResult(url);
-                errorResult.setSuccess(false);
-                errorResult.setErrorMsg("Unexpected error: " + e.getMessage());
-                htmlExtractor.extractWebpage(errorResult, currentDepth).ifPresent(crawledPages::add);
                 return List.of();
             }
         }
@@ -135,6 +132,7 @@ public class CrawlerEngine {
         private boolean isEligible(String url) {
             if (currentDepth > maxDepth) return false;
             if (!DomainValidator.isAllowedDomain(url, allowedDomains)) return false;
+            if (!UrlValidator.isHtmlUrl(url)) return false;
 
             return visitedUrls.add(url);
         }

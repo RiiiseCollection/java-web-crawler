@@ -236,21 +236,6 @@ class CrawlerEngineTest {
         assertDoesNotThrow(() -> engine.crawl(url));
     }
 
-    @Test
-    void crawlAddsPageAsBrokenWhenFetcherThrowsRuntimeException() {
-        when(urlFetcher.fetchUrl(url)).thenThrow(new RuntimeException("Unexpected internal error"));
-
-        FetchResult brokenResult = new FetchResult(url);
-        brokenResult.setErrorMsg("Unexpected error: Unexpected internal error");
-        Webpage brokenPage = new Webpage(new Link(url, true), new LinkedHashSet<>(), new ArrayList<>(), 0);
-        when(htmlExtractor.extractWebpage(any(FetchResult.class), anyInt())).thenReturn(Optional.of(brokenPage));
-
-        CrawlerEngine engine = createEngine(1, pool);
-        engine.crawl(url);
-
-        assertFalse(engine.getCrawledPages().isEmpty());
-        assertTrue(engine.getCrawledPages().getFirst().root().isBroken());
-    }
 
     @Test
     void crawlContinuesWithRemainingUrlsWhenOneFetcherThrows() {
