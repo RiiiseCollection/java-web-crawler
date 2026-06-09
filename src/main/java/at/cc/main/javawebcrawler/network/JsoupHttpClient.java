@@ -32,8 +32,8 @@ public class JsoupHttpClient implements HttpClient {
             return Optional.of(toHttpResponse(fetchUrlDefault(url)));
         } catch (javax.net.ssl.SSLException e) {
             return trySSLFallback(url);
-        } catch (IOException e) {
-            log.error("Failed to fetch url: {}", url);
+        } catch (IOException | IllegalArgumentException e) {
+            log.error("Failed to fetch url: {} with error: {}", url, e.getMessage());
             return Optional.empty();
         }
     }
