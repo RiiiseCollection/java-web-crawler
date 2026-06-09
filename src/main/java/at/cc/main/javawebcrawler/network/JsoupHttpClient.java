@@ -3,6 +3,8 @@ package at.cc.main.javawebcrawler.network;
 import at.cc.main.javawebcrawler.data.fetch.HttpResponse;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -12,6 +14,7 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 
 public class JsoupHttpClient implements HttpClient {
+    private static final Logger log = LoggerFactory.getLogger(JsoupHttpClient.class);
     private static final int TIMEOUT_DELAY_MILLIS = 5000;
     private static final String TLS_PROVIDER = "TLS";
     private SSLContext unsafeSSLContext;
@@ -30,7 +33,7 @@ public class JsoupHttpClient implements HttpClient {
         } catch (javax.net.ssl.SSLException e) {
             return trySSLFallback(url);
         } catch (IOException e) {
-            System.err.println("Failed to fetch url: " + url);
+            log.warn("Failed to fetch url: {}", url);
             return Optional.empty();
         }
     }
@@ -58,7 +61,7 @@ public class JsoupHttpClient implements HttpClient {
         try {
             return Optional.of(toHttpResponse(fetchUrlWithoutCertificateCheck(url, unsafeSSLContext)));
         } catch (IOException e) {
-            System.err.println("SSL fallback failed for url: " + url);
+            log.warn("SSL fallback failed for url: {}", url);
             return Optional.empty();
         }
     }
@@ -85,7 +88,7 @@ public class JsoupHttpClient implements HttpClient {
             unsafeSSLContext = sslContext;
             isSSLFallbackAvailable = true;
         } catch (Exception e) {
-            System.err.print("Failed to initialize unsafeSSLContext (Fallback unavailable)");
+            log.warn("Failed to initialize unsafeSSLContext (Fallback unavailable)");
             isSSLFallbackAvailable = false;
         }
     }

@@ -3,6 +3,8 @@ package at.cc.main.javawebcrawler.report;
 import at.cc.main.javawebcrawler.data.webpage.Headline;
 import at.cc.main.javawebcrawler.data.webpage.Link;
 import at.cc.main.javawebcrawler.data.webpage.Webpage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -11,6 +13,8 @@ import java.util.List;
 import java.util.Set;
 
 public class MarkdownReportGenerator {
+    private static final Logger log = LoggerFactory.getLogger(MarkdownReportGenerator.class);
+
     private static final String REPORT_FILENAME = "crawl-report.md";
 
     public void generateReport(List<Webpage> crawledPages) {
@@ -25,9 +29,9 @@ public class MarkdownReportGenerator {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(REPORT_FILENAME))) {
             writePageEntry(writer, page);
             writeLinkTree(writer, page);
-            System.out.println("Report generated: " + REPORT_FILENAME);
+            log.info("Report generated: {}", REPORT_FILENAME);
         } catch (IOException e) {
-            System.err.println("Error generating report: " + e.getMessage());
+            log.error("Error generating report: {}", e.getMessage(), e);
         }
     }
 
@@ -36,9 +40,9 @@ public class MarkdownReportGenerator {
             for (Webpage page : crawledPages) {
                 writePageEntry(writer, page);
             }
-            System.out.println("Report generated: " + REPORT_FILENAME);
+            log.info("Report generated: {}", REPORT_FILENAME);
         } catch (IOException e) {
-            System.err.println("Error generating report: " + e.getMessage());
+            log.error("Error generating report: {}", e.getMessage(), e);
         }
     }
 
@@ -50,6 +54,7 @@ public class MarkdownReportGenerator {
 
         if (root.isBroken()) {
             writer.write("\n<br>--> broken link <a>" + root.link() + "</a>\n\n");
+            log.warn("Broken link encountered: {}", root.link());
             return;
         }
 
@@ -81,6 +86,7 @@ public class MarkdownReportGenerator {
                 String arrowPrefix = getArrowPrefix(page.depth());
                 if (link.isBroken()) {
                     writer.write("<br> " + arrowPrefix + "broken link <a>" + link.link() + "</a>\n");
+                    log.warn("Broken link in page {}: {}", page.root().link(), link.link());
                 } else {
                     writer.write("<br> " + arrowPrefix + "link to <a>" + link.link() + "</a>\n");
                 }

@@ -7,6 +7,9 @@ import at.cc.main.javawebcrawler.data.webpage.Link;
 import at.cc.main.javawebcrawler.data.webpage.Webpage;
 import at.cc.main.javawebcrawler.network.JsoupHttpClient;
 import at.cc.main.javawebcrawler.util.DomainValidator;
+import at.cc.main.javawebcrawler.util.UrlValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +17,8 @@ import java.util.Set;
 import java.util.concurrent.*;
 
 public class CrawlerEngine {
+    private static final Logger log = LoggerFactory.getLogger(CrawlerEngine.class);
+
     private static final int THREAD_POOL_SIZE = 10;
     private static final long TIMEOUT_SECONDS = 300;
 
@@ -40,7 +45,7 @@ public class CrawlerEngine {
         this.pool = pool;
     }
 
-    public void crawl(String startUrl) {;
+    public void crawl(String startUrl) {
         try {
             crawlLevel(List.of(startUrl), 0, pool);
         } finally {
@@ -64,9 +69,11 @@ public class CrawlerEngine {
                 nextLevelUrls.addAll(future.get());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                System.err.println("Crawl interrupted at depth " + currentDepth);
+                log.warn("Crawl interrupted at depth {}", currentDepth);
             } catch (ExecutionException e) {
-                System.err.println("Error during crawling: " + e.getCause().getMessage());
+                Throwable cause = e.getCause();
+                String msg = (cause != null) ? cause.getMessage() : e.getMessage();
+                log.error("Error during crawling at depth {}: {}", currentDepth, msg);
             }
         }
 
@@ -77,9 +84,11 @@ public class CrawlerEngine {
         pool.shutdown();
         try {
             if (!pool.awaitTermination(TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                log.warn("Thread pool did not terminate in time, forcing shutdown.");
                 pool.shutdownNow();
             }
         } catch (InterruptedException e) {
+            log.error("Interrupted while waiting for thread pool to terminate, forcing shutdown.");
             pool.shutdownNow();
             Thread.currentThread().interrupt();
         }
@@ -109,15 +118,21 @@ public class CrawlerEngine {
                 return List.of();
             }
 
-            System.out.println("Crawling: " + url + " at depth " + currentDepth);
+            log.info("Crawling: {} at depth {}", url, currentDepth);
 
-            FetchResult fetchResult = urlFetcher.fetchUrl(url);
-            return processAndCollectChildren(fetchResult);
+            try {
+                FetchResult fetchResult = urlFetcher.fetchUrl(url);
+                return processAndCollectChildren(fetchResult);
+            } catch (Exception e) {
+                log.error("Unexpected error crawling {}: {}", url, e.getMessage(), e);
+                return List.of();
+            }
         }
 
         private boolean isEligible(String url) {
             if (currentDepth > maxDepth) return false;
             if (!DomainValidator.isAllowedDomain(url, allowedDomains)) return false;
+            if (!UrlValidator.isHtmlUrl(url)) return false;
 
             return visitedUrls.add(url);
         }

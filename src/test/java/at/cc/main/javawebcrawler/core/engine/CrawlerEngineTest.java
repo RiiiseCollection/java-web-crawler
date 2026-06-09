@@ -17,8 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -214,6 +213,55 @@ class CrawlerEngineTest {
 
         verify(mockPool).shutdownNow();
         assertTrue(Thread.currentThread().isInterrupted());
+    }
+
+    @Test
+    void crawlDoesNotCrashWhenFetcherThrowsRuntimeException() {
+        when(urlFetcher.fetchUrl(url)).thenThrow(new RuntimeException("Unexpected internal error"));
+
+        CrawlerEngine engine = createEngine(1, pool);
+
+        assertDoesNotThrow(() -> engine.crawl(url));
+    }
+
+    @Test
+    void crawlDoesNotCrashWhenExtractorThrowsRuntimeException() {
+        FetchResult fetchResult = mock(FetchResult.class);
+        when(fetchResult.isSuccess()).thenReturn(true);
+        when(urlFetcher.fetchUrl(url)).thenReturn(fetchResult);
+        when(htmlExtractor.extractWebpage(any(), anyInt())).thenThrow(new RuntimeException("Unexpected internal error"));
+
+        CrawlerEngine engine = createEngine(1, pool);
+
+        assertDoesNotThrow(() -> engine.crawl(url));
+    }
+
+
+    @Test
+    void crawlContinuesWithRemainingUrlsWhenOneFetcherThrows() {
+        String workingUrl = "https://aau.at/a";
+        String brokenUrl = "https://aau.at/b";
+
+        FetchResult fetchResult = successfulFetch();
+        when(urlFetcher.fetchUrl(url)).thenReturn(fetchResult);
+        when(urlFetcher.fetchUrl(workingUrl)).thenReturn(fetchResult);
+
+        LinkedHashSet<Link> links = new LinkedHashSet<>();
+        links.add(new Link(workingUrl, false));
+        links.add(new Link(brokenUrl, false));
+
+        Webpage rootPage = new Webpage(new Link(url, false), links, new ArrayList<>(), 0);
+        when(htmlExtractor.extractWebpage(fetchResult, 0)).thenReturn(Optional.of(rootPage));
+
+        Webpage workingPage = new Webpage(new Link(workingUrl, false), new LinkedHashSet<>(), new ArrayList<>(), 1);
+        when(htmlExtractor.extractWebpage(fetchResult, 1)).thenReturn(Optional.of(workingPage));
+
+        when(urlFetcher.fetchUrl(brokenUrl)).thenThrow(new RuntimeException("Unexpected internal error"));
+
+        CrawlerEngine engine = createEngine(1, pool);
+
+        assertDoesNotThrow(() -> engine.crawl(url));
+        assertTrue(engine.getVisitedUrls().contains(workingUrl));
     }
 
     private FetchResult successfulFetch() {
