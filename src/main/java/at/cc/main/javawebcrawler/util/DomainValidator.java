@@ -19,7 +19,7 @@ public class DomainValidator {
     public static boolean isAllowedDomain(String url, List<String> allowedDomains) {
         Optional<String> hostOptional = extractDomain(url);
 
-        if(hostOptional.isEmpty()) return false;
+        if (hostOptional.isEmpty()) return false;
 
         String host = hostOptional.get();
 
