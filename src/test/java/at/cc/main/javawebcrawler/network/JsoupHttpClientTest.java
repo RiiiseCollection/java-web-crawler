@@ -130,6 +130,19 @@ public class JsoupHttpClientTest {
     }
 
     @Test
+    void correctlyReturnEmptyOnIllegalArgumentException() throws IOException {
+        try (MockedStatic<Jsoup> jsoupMock = mockStatic(Jsoup.class)) {
+            jsoupMock.when(() -> Jsoup.connect(TEST_URL))
+                    .thenReturn(defaultConnection);
+            when(defaultConnection.execute()).thenThrow(new IllegalArgumentException("IllegalArgument Exception"));
+
+            Optional<HttpResponse> result = client.fetchUrl(TEST_URL);
+
+            assertTrue(result.isEmpty());
+        }
+    }
+
+    @Test
     void correctlyThrowOnUrlNull() {
         assertThrows(IllegalArgumentException.class, () -> client.fetchUrl(null));
     }
